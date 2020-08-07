@@ -1,8 +1,17 @@
 {
-	"en": {
-
+	"lang": {
+		"en": {
+			"page.title": "Remtori's Comfy Home",
+			"page.description": "A comfy place with a lot of cool stuff to explore",
+			"lang.en": "English",
+			"lang.vn": "Vietnamese"
+		},
+		"vn": {
+			"page.title": "Ngôi nhà êm ấm của Remtori",
+			"page.description": "Một nơi ấp cúng với khá là nhiều thứ thú ví để khám phá",
+			"lang.en": "Tiếng Anh",
+			"lang.vn": "Tiếng Việt"
+		}
 	},
-	"vn": {
-
-	}
+	"defaultLang": "en"
 }
