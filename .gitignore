@@ -1,15 +1,11 @@
 node_modules
 
-# Build cache
-/cache
-
 # Scss module typedef
 *css.d.ts
 
 # Local Netlify folder
 .netlify
 
-# Public folder
-/public/*
-!/public/content
-!/public/files
+# Generated folder
+/cache
+/dist

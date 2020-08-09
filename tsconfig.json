@@ -7,18 +7,15 @@
     "jsxFactory": "h",
     "strict": true,
     "moduleResolution": "node",
-    "composite": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
       "dom",
-      "dom.iterable"
+      "dom.iterable",
+      "esnext"
     ],
     "skipLibCheck": true,
-    "types": [
-    ],
+    "types": [],
     "baseUrl": "./"
   },
   "include": [
