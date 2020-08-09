@@ -1,0 +1,66 @@
+@import './vars';
+
+html, body {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	color: #fff;
+	background-color: #313131;
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+    min-height: 100vh;
+}
+
+.text {
+	color: $text-color;
+	line-height: 22px;
+	font-size: 16px;
+}
+
+// For icon pre-rendering size
+.icon, .svg-inline--fa {
+	display: inline-block;
+	font-size: inherit;
+	overflow: visible;
+	width: 1em;
+	height: 1em;
+	vertical-align: -0.125em;
+}
+
+.icon-preact {
+	background-image: url('./assets/preact.svg');
+}
+
+.icon-firebase {
+	background-image: url('./assets/firebase.svg');
+}
+
+.icon-webpack {
+	background-image: url('./assets/webpack.svg');
+}
+
+.error-image {
+	width: 256px;
+	height: 256px;
+	margin: auto;
+	background:
+		url('./assets/notfound.svg')
+		no-repeat;
+	background-size: cover;
+}
+
+.loading-image {
+	width: 256px;
+	height: 256px;
+	margin: auto;
+	background:
+		url('./assets/loading-dot.svg')
+		no-repeat;
+	background-size: cover;
+}

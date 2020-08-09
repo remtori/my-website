@@ -1,0 +1,166 @@
+@import '../../vars.scss';
+
+.wrapper {
+    margin: auto;
+    margin-top: $header-height;
+    height: 100%;
+    overflow: auto;
+    width: $max-width;
+    max-width: $cover-break;
+    background-color: #252525;
+    flex-grow: 1;
+
+    @media (max-width: $cover-break) {
+        width: 100%;
+        margin: 0;
+        margin-top: $header-height;
+    }
+
+	.container {
+        margin: 0 25px;
+        margin-top: 5px;
+        padding: 0 10px;
+        text-align: center;
+    }
+}
+
+
+.header {
+    margin: 0;
+    padding: 0;
+    height: $header-height;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 9999; // Not because i want to, but codemirror force me :(
+    background-color: #121212;
+    display: flex;
+    justify-content: center;
+
+    div.nav {
+        width: $max-width;
+        justify-content: space-between;
+        display: flex;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    a.home {
+        display: flex;
+        align-items: center;
+
+        color: white;
+        font-size: 1.4rem;
+        text-align: left;
+        text-decoration: none;
+
+        img {
+            width: 40px;
+            border-radius: 90px;
+            margin-right: 8px;
+        }
+
+        span {
+            padding: 0.8rem 0;
+            width: max-content;
+        }
+    }
+
+    nav {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        display: flex;
+        justify-content: flex-end;
+
+        a {
+            display: flex;
+            align-items: center;
+            color: #999999;
+            padding: 1.2rem;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        a:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 4px;
+            background: #1e73be;
+            transform:  scaleX(0);
+            transition: transform .5s ease;
+        }
+
+        a:hover:before, a:focus::before, a.focused::before {
+            transform: scaleX(1);
+        }
+
+        a:hover, a:focus, a.focused {
+            color: #ffffff;
+        }
+    }
+}
+
+.footer {
+	position: relative;
+	background-color: #202020;
+	text-align: center;
+	font-size: 1.2rem;
+	color: #999;
+	padding: 1rem 0px;
+
+	& > div {
+		padding: 5px 0;
+	}
+
+	a {
+		color: $link-color;
+		text-decoration: none;
+	}
+
+	.icon {
+		margin: 0px 2px;
+		margin-bottom: -3px;
+	}
+
+	.social {
+		padding: 14px 0;
+		margin-left: 1em;
+
+		& > .icon {
+			margin-right: 0.3em;
+			margin-bottom: -1px;
+		}
+
+		span {
+			color: #999;
+		}
+
+		.iconWhite {
+			color: #fff;
+		}
+
+		.iconTwitter {
+			color: rgba(29,161,242,1.00);
+		}
+	}
+
+	.version {
+		position: absolute;
+		bottom: 0px;
+		left: 0px;
+		font-size: 12px;
+		font-weight: normal;
+		padding: 0;
+		margin: 0;
+	}
+}
