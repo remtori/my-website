@@ -7,16 +7,7 @@ import './global.scss';
 function init() {
 	const entry = document.getElementById('app') as HTMLDivElement;
 
-	if (!dev) {
-		hydrate(<App />, entry);
-	}
-
-	if (dev) {
-		entry.innerText = '';
-		render(<App />, entry);
-		// @ts-ignore
-		require('preact/debug');
-	}
+	(dev ? render : hydrate)(<App />, entry);
 }
 
 requestAnimationFrame(init);
