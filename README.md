@@ -26,7 +26,7 @@
 
 - Upload files
 
-```yml
+```
 Request:
 	method: POST
 	url: /api/uploadFile
@@ -48,7 +48,7 @@ Response:
 
 - Search
 
-```yml
+```
 Request:
 	method: GET
 	url: /api/search
@@ -95,7 +95,7 @@ SearchQueryExample:
 
 - Upload project from repo
 
-```yml
+```
 
 Request:
 	method: POST
@@ -120,7 +120,7 @@ Response:
 
 ## Routes
 
-```yml
+```
 Routes:
 
 	/api/**                : API endpoint as specified
