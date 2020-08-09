@@ -1,5 +1,9 @@
 node_modules
-dist
+
+# Build cache
+/cache
+
+# Scss module typedef
 *css.d.ts
 
 # Local Netlify folder
