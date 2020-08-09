@@ -11,7 +11,10 @@ module.exports = function styleLoader({ useCssModule, isPrerender }) {
             loader: 'css-loader',
             options: {
                 importLoaders: 2,
-                modules: useCssModule && (
+                modules: useCssModule && Object.assign(
+                    {
+                        exportLocalsConvention: 'camelCaseOnly'
+                    },
                     config.dev
                         ? { localIdentName: '[local]__[hash:base64:4]' }
                         : { localIdentName: '[hash:base64:8]' }

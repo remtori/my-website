@@ -43,7 +43,7 @@ module.exports = merge(baseConfig({ isPrerender: false }), {
                 langFile: path.join(publicDir, './content/lang.json'),
                 output: path.join(srcDir, './typings/lang.d.ts'),
             }),
-            new ScssModuleTypesPlugin(srcDir),
+            new ScssModuleTypesPlugin(path.join(srcDir, '**/*.scss')),
         ] : [
             new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false })
         ]

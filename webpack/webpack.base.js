@@ -29,7 +29,7 @@ module.exports = ({ isPrerender }) => ({
                 use: stylesLoader({ useCssModule: true, isPrerender })
             },
             {
-                test: m => m.endsWith('global.scss') || /node_modules\/[\w\d\/_-]+\.css$/i.test(m),
+                test: m => m.endsWith('global.scss') || /\.css$/.test(m),
                 use: stylesLoader({ useCssModule: false, isPrerender })
             },
             {

@@ -22,12 +22,8 @@ module.exports = class ScssModuleTypes {
 			await dtsCreator(this.root, this.options);
 		});
 
-		compiler.hooks.watchRun.tapPromise(name, async (comp) => {
-			await Promise.all(
-				Object.keys(comp.watchFileSystem.watcher.mtimes)
-				.filter(file => file.endsWith('.scss'))
-				.map(file => dtsCreator(file, this.options))
-			);
+		compiler.hooks.watchRun.tapPromise(name, async () => {
+			await dtsCreator(this.root, this.options);
 		});
 	}
 }
