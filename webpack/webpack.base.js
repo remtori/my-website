@@ -26,18 +26,11 @@ module.exports = ({ isPrerender }) => ({
             },
             {
                 test: m => /\.s(a|c)ss$/.test(m) && !m.endsWith('global.scss'),
-                use: stylesLoader({ useCssModule: true })
+                use: stylesLoader({ useCssModule: true, isPrerender })
             },
             {
-                test: m => m.endsWith('global.scss'),
-                use: stylesLoader({ useCssModule: false })
-            },
-            {
-                test: /\.css$/,
-                use: ([
-                    !isPrerender && ExtractCssPlugin.loader,
-                    'css-loader'
-                ]).filter(Boolean),
+                test: m => m.endsWith('global.scss') || /node_modules\/[\w\d\/_-]+\.css$/i.test(m),
+                use: stylesLoader({ useCssModule: false, isPrerender })
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,

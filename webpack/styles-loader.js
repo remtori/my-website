@@ -2,9 +2,9 @@ const ExtractCssPlugin = require('extract-css-chunks-webpack-plugin');
 
 const config = require('../buildconfig');
 
-module.exports = function styleLoader({ useCssModule }) {
+module.exports = function styleLoader({ useCssModule, isPrerender }) {
     return ([
-        {
+        !isPrerender && {
             loader: ExtractCssPlugin.loader,
         },
         {
@@ -16,7 +16,6 @@ module.exports = function styleLoader({ useCssModule }) {
                         ? { localIdentName: '[local]__[hash:base64:4]' }
                         : { localIdentName: '[hash:base64:8]' }
                 ),
-                sourceMap: true,
             }
         },
         {
@@ -28,7 +27,6 @@ module.exports = function styleLoader({ useCssModule }) {
                         require('postcss-url'),
                     ];
                 },
-                sourceMap: true,
             }
         },
         {
@@ -37,7 +35,6 @@ module.exports = function styleLoader({ useCssModule }) {
                 sassOptions: {
                     includePaths: [ config.srcDir ]
                 },
-                sourceMap: true,
             }
         }
     ]).filter(Boolean);
