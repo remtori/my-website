@@ -22,6 +22,20 @@
 
 - Files uploaded is store on a cloud service
 
+## Folder structure
+
+- `/src` contain all the source code for the page
+
+- `/src/assets/` contain all the assets that will be embed via either css or html
+
+- `/public` contain all the files that will be hosted directly
+
+- `/functions` API / server stuff
+
+- `/webpack` script to configure & build the page
+
+- `/buildconfig.js` a file that contain absolute path to all the important directory as some config
+
 ## API
 
 - Upload files
