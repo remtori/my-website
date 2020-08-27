@@ -16,7 +16,7 @@
 
 - Blogs (/blogs/[id]) and Projects (/projects/[id]) are hosted in this repo at `/content`
 
-- List of project and blogs is hosted on a `Postgresql` DB
+- List of project and blogs is hosted on a `Mongo` DB
 
 - API (inside `/functions`) is hosted on a cloud functions service
 
@@ -43,7 +43,7 @@
 ```
 Request:
 	method: POST
-	url: /api/uploadFile
+	url: /uploadFile
 	content-type: [FILE_TYPE]
 	body: [FILE_CONTENT]
 
@@ -65,7 +65,7 @@ Response:
 ```
 Request:
 	method: GET
-	url: /api/search
+	url: /search
 	encodeURI: {
 		category?: ['all', 'project', 'blog'],
 		query: SEARCH_QUERY
@@ -113,7 +113,7 @@ SearchQueryExample:
 
 Request:
 	method: POST
-	url: /api/buildProject
+	url: /buildProject
 	body: {
 		id?: project id which will be display in the url, default will be the repo name
 		repoURL: https://github.com/remtori/ATG,
@@ -137,7 +137,7 @@ Response:
 ```
 Routes:
 
-	/api/**                : API endpoint as specified
+	/**                : API endpoint as specified
 
 	/files/*               : Hosted file endpoint, with correct content-type
 
