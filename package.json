@@ -60,7 +60,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "formik": "^2.1.5",
     "highlight.js": "^10.1.2",
-    "marked": "^1.1.1",
+    "marked": "^2.0.1",
     "preact": "^10.4.6",
     "preact-async-route": "^2.2.1",
     "preact-router": "^3.2.1",
