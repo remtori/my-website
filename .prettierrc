@@ -1,0 +1,17 @@
+  {
+	"semi": true,
+	"singleQuote": true,
+	"useTabs": true,
+	"quoteProps": "consistent",
+	"tabWidth": 4,
+	"overrides": [
+		{
+			"files": ["*.html", "*.ejs"],
+			"options": {
+				"tabWidth": 2
+			}
+		}
+	],
+	"arrowParens": "always",
+	"printWidth": 120
+}

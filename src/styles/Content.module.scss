@@ -1,0 +1,29 @@
+@import './vars.scss';
+
+.contentContainer {
+	display: flex;
+	text-align: left;
+	flex-direction: column;
+	font-family: Consolas, Menlo, Monaco;
+	font-size: 16px;
+
+	.edit {
+		align-self: flex-end;
+		margin: 0;
+		margin-top: 1em;
+		height: 18px;
+		color: #fff;
+		text-decoration: none;
+		font-size: 16px;
+		border-bottom: 1px solid #fff;
+
+		span {
+			margin-left: 0.5em;
+		}
+	}
+
+	.content {
+		text-align: left;
+		color: $text-color;
+	}
+}

@@ -1,0 +1,31 @@
+{
+    "name": "Remtori's Comfy Home",
+    "short_name": "Remtori",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "theme_color": "#13294D",
+    "background_color": "#13294D",
+    "icons": [
+        {
+            "src": "/icons/icon-624.webp",
+            "type": "image/webp",
+            "sizes": "624x624"
+        },
+        {
+            "src": "/icons/icon-192.webp",
+            "type": "image/webp",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icons/icon-624.png",
+            "type": "image/png",
+            "sizes": "624x624"
+        },
+        {
+            "src": "/icons/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ]
+}
