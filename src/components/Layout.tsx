@@ -14,7 +14,7 @@ export const Layout: FunctionComponent = ({ children }) => {
 	return (
 		<>
 			<Head>
-				<title>Remtori's Comfy Home</title>
+				<title>{`Remtori's Comfy Home`}</title>
 				<meta name="viewport" content="width=device-width" />
 				<meta name="theme-color" content="#13294D" />
 				<meta name="description" content="A comfy place with a lot of cool stuff to explore~" />
@@ -35,7 +35,7 @@ const Header: FunctionComponent = () => {
 				<Link href="/">
 					<a className={styles.home}>
 						<Image alt="site icon" src={miniIcon} width={40} height={40} layout="fixed" />
-						<span className={styles.title}>Remtori's Comfy Home</span>
+						<span className={styles.title}>{`Remtori's Comfy Home`}</span>
 					</a>
 				</Link>
 				<nav>

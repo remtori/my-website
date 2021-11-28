@@ -9,17 +9,19 @@
 	background-color: #252525;
 	flex-grow: 1;
 
-	// scroll bar
-	@media (max-width: ($max-width + 20px)) {
+	@media (max-width: ($max-width + $scroll-bar)) {
 		width: 100%;
 		margin: 0;
 		margin-top: $header-height;
 	}
 
 	.container {
-		margin: 0 25px;
-		margin-top: 5px;
+		margin: 5px 25px 0px 25px;
 		padding: 0 10px;
+
+		@media (max-width: $mobile-break) {
+			margin: 0;
+		}
 	}
 }
 
@@ -36,6 +38,16 @@
 	display: flex;
 	justify-content: center;
 
+	@media (max-width: ($max-width + $scroll-bar)) {
+		position: absolute;
+	}
+
+	@media (max-width: $mobile-break) {
+		.title {
+			display: none;
+		}
+	}
+
 	div.nav {
 		width: $max-width;
 		justify-content: space-between;
@@ -45,6 +57,8 @@
 	}
 
 	a.home {
+		margin-left: 0.8rem;
+
 		display: flex;
 		align-items: center;
 
