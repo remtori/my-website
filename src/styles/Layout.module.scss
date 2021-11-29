@@ -1,5 +1,11 @@
 @import './vars.scss';
 
+.root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
 .wrapper {
 	margin: auto;
 	margin-top: $header-height;
@@ -18,6 +24,7 @@
 	.container {
 		margin: 5px 25px 0px 25px;
 		padding: 0 10px;
+		color: $text-color;
 
 		@media (max-width: $mobile-break) {
 			margin: 0;

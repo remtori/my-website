@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
 import { Editor } from '~/components/Editor';
-import { s3Client } from '~/lib/s3';
 import { streamToString } from '~/lib/util.server';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -15,7 +14,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 	let pageContent = '';
 	// try {
-	// 	pageContent = await streamToString(await s3Client.getObject(process.env.S3_BUCKET!, path));
+	// 	pageContent = await streamToString(await s3Client.getObject(process.env.S3_BUCKET, path));
 	// } catch (err: any) {
 	// 	if (err.code !== 'NoSuchKey') throw err;
 	// }

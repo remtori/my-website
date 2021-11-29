@@ -19,11 +19,13 @@ export const Layout: FunctionComponent = ({ children }) => {
 				<meta name="theme-color" content="#13294D" />
 				<meta name="description" content="A comfy place with a lot of cool stuff to explore~" />
 			</Head>
-			<Header />
-			<div className={styles.wrapper}>
-				<div className={styles.container}>{children}</div>
+			<div className={styles.root}>
+				<Header />
+				<div className={styles.wrapper}>
+					<div className={styles.container}>{children}</div>
+				</div>
+				<Footer />
 			</div>
-			<Footer />
 		</>
 	);
 };

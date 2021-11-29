@@ -1,7 +1,15 @@
 .container {
+	font-family: Consolas, monospace;
+
 	.editor {
 		caret-color: #fff;
 		font-family: Consolas, monospace;
+		outline: none;
+
+		&::selection {
+			color: transparent;
+			background-color: #4398ff88;
+		}
 	}
 
 	.pre {
