@@ -1,4 +1,4 @@
-import { presignUploadUrl, verifyPermLevel } from '~/lib/util.server';
+import { presignUploadUrl, s3PathToUrl, verifyPermLevel } from '~/lib/util.server';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isAbsolute, posix } from 'path';
 
@@ -25,7 +25,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
 		.then((uploadUrl) =>
 			response.status(200).json({
 				uploadUrl,
-				downloadUrl: posix.join(process.env.S3_CDN_PREFIX, s3Path),
+				downloadUrl: s3PathToUrl(s3Path),
 			})
 		)
 		.catch((error) => response.status(500).json({ error, signPath: s3Path }));

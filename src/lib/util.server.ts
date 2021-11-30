@@ -14,9 +14,15 @@ const PRESIGN_URL_EXPIRE_TIME = 8 * 60 * 60;
 export const presignUploadUrl = (path: string) =>
 	s3Client.presignedPutObject(process.env.S3_BUCKET, path, PRESIGN_URL_EXPIRE_TIME);
 
+export const s3PathToUrl = (path: string) => {
+	const prefix = process.env.S3_CDN_PREFIX;
+	path = path.startsWith('/') ? path.slice(1) : path;
+	return prefix.endsWith('/') ? prefix + path : prefix + '/' + path;
+}
+
 export const readS3FileFromPath = (path: string): Promise<string> =>
 	resolvePath(path)
-		.then((p) => s3Client.presignedGetObject(process.env.S3_BUCKET, p, 60))
+		.then(s3PathToUrl)
 		.then(url => fetch(url))
 		.then(resp => resp.text());
 
