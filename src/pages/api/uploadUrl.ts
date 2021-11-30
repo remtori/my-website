@@ -1,6 +1,6 @@
-import { presignUploadUrl, s3PathToUrl, verifyPermLevel } from '~/lib/util.server';
+import { presignUploadUrl, s3PathToUrl, getPermLevel } from '~/lib/util.server';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { isAbsolute, posix } from 'path';
+import { isAbsolute } from 'path';
 
 export const config = {
 	bodyParser: {
@@ -15,12 +15,14 @@ export default async function handler(request: NextApiRequest, response: NextApi
 	if (typeof idToken !== 'string' || typeof path !== 'string')
 		return response.status(401).json({ message: 'Unauthorized' });
 
-	const canUpload = await verifyPermLevel(idToken, 1);
-	if (!canUpload) return response.status(403).json({ message: 'Forbbiden' });
-
 	if (!isAbsolute(path)) return response.status(400).json({ message: 'Bad Request' });
 
-	const s3Path = posix.join(process.env.S3_OBJECT_PREFIX, path);
+	const s3Path = path[0] === '/' ? path.slice(1) : path;
+	const permLevel = await getPermLevel(idToken);
+	if (permLevel < 1) {
+		return response.status(403).json({ message: 'Forbbiden' });
+	}
+
 	await presignUploadUrl(s3Path)
 		.then((uploadUrl) =>
 			response.status(200).json({

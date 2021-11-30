@@ -3,11 +3,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { s3Client, firebase } from './server-sdk';
 import { posix } from 'path';
 
-export const verifyPermLevel = (idToken: string, permLevel: number) =>
+export const getPermLevel = (idToken: string) =>
 	getAuth(firebase)
 		.verifyIdToken(idToken)
 		.then((decodedIdToken) => getFirestore(firebase).doc(`data/perm/${decodedIdToken.uid}`).get())
-		.then((perm) => Number(perm.get('permLevel')) ?? 0 >= permLevel);
+		.then((perm) => Number(perm.get('permLevel')) ?? 0);
 
 const PRESIGN_URL_EXPIRE_TIME = 8 * 60 * 60;
 
