@@ -18,13 +18,13 @@ export const s3PathToUrl = (path: string) => {
 	const prefix = process.env.S3_CDN_PREFIX;
 	path = path.startsWith('/') ? path.slice(1) : path;
 	return prefix.endsWith('/') ? prefix + path : prefix + '/' + path;
-}
+};
 
 export const readS3FileFromPath = (path: string): Promise<string> =>
 	resolvePath(path)
 		.then(s3PathToUrl)
-		.then(url => fetch(url))
-		.then(resp => resp.text());
+		.then((url) => fetch(url))
+		.then((resp) => new Promise((resolve, reject) => resp.text().then(resp.ok ? resolve : reject)));
 
 const resolvePath = async (path: string): Promise<string> => {
 	path = posix.join(process.env.S3_OBJECT_PREFIX, path);
