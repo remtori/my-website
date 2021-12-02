@@ -40,7 +40,7 @@
 	top: 0px;
 	left: 0px;
 	right: 0px;
-	z-index: 9999; // Not because i want to, but codemirror force me :(
+	z-index: 9999;
 	background-color: #121212;
 	display: flex;
 	justify-content: center;
@@ -61,67 +61,81 @@
 		display: flex;
 		overflow: hidden;
 		user-select: none;
-	}
 
-	a.home {
-		margin-left: 0.8rem;
+		a.home {
+			margin-left: 0.8rem;
 
-		display: flex;
-		align-items: center;
-
-		color: white;
-		font-size: 1.4rem;
-		text-align: left;
-		text-decoration: none;
-
-		.title {
-			margin-left: 8px;
-			padding: 0.8rem 0;
-			width: max-content;
-		}
-	}
-
-	nav {
-		width: 100%;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-
-		display: flex;
-		justify-content: flex-end;
-
-		a {
 			display: flex;
 			align-items: center;
-			color: #999999;
-			padding: 1.2rem;
-			text-align: center;
+
+			color: white;
+			font-size: 1.4rem;
+			text-align: left;
 			text-decoration: none;
-			font-size: 1rem;
-			text-align: center;
-			position: relative;
+
+			.title {
+				margin-left: 8px;
+				padding: 0.8rem 0;
+				width: max-content;
+			}
 		}
 
-		a:before {
-			content: '';
-			position: absolute;
-			left: 0;
-			top: 0;
+		nav {
 			width: 100%;
-			height: 4px;
-			background: #1e73be;
-			transform: scaleX(0);
-			transition: transform 0.5s ease;
-		}
+			margin: 0;
+			padding: 0;
+			list-style: none;
 
-		a:hover:before,
-		a:focus::before {
-			transform: scaleX(1);
-		}
+			display: flex;
+			justify-content: flex-end;
 
-		a:hover,
-		a:focus {
-			color: #ffffff;
+			a {
+				display: flex;
+				align-items: center;
+				color: #999999;
+				padding: 1.2rem;
+				text-align: center;
+				text-decoration: none;
+				font-size: 1rem;
+				position: relative;
+			}
+
+			a:before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 4px;
+				background: #1e73be;
+				transform: scaleX(0);
+				transition: transform 0.5s ease;
+			}
+
+			a:hover:before,
+			a:focus::before {
+				transform: scaleX(1);
+			}
+
+			a:hover,
+			a:focus {
+				color: #ffffff;
+			}
+
+			.account {
+				margin-left: 2em;
+				@media (max-width: $mobile-break) {
+					margin: 0;
+				}
+
+				font-size: 18px;
+				color: #ddd;
+				cursor: pointer;
+
+				&:before {
+					background: none;
+				}
+			}
 		}
 	}
 }
@@ -170,4 +184,27 @@
 			color: rgba(29, 161, 242, 1);
 		}
 	}
+}
+
+.modalContent {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	right: auto;
+	bottom: auto;
+	margin-right: -50%;
+	transform: translate(-50%, -50%);
+	width: 500px;
+	height: 500px;
+	background-color: #121212;
+	border: none;
+}
+
+.modalOverlay {
+	position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+	background-color: rgba(0, 0, 0, 0.9);
 }
