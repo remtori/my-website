@@ -1,7 +1,7 @@
 /**
- * From: https://github.com/satya164/react-simple-code-editor/tree/e5be544449a7ed0387a14236fff1c41bc6f0798f
+ * Fork From: https://github.com/satya164/react-simple-code-editor/tree/e5be544449a7ed0387a14236fff1c41bc6f0798f
  *
- * Author: Satyajit Sahoo <satyajit.happy@gmail.com> (https://github.com/satya164/)
+ * Original Author: Satyajit Sahoo <satyajit.happy@gmail.com> (https://github.com/satya164/)
  *
  * The MIT License (MIT)
  *
@@ -24,11 +24,20 @@
 
 import React from 'react';
 
+import Prism from 'prismjs';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/plugins/autoloader/prism-autoloader';
+if (typeof window !== 'undefined') {
+	Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/';
+}
+
 type Props = React.HTMLAttributes<HTMLDivElement> & {
 	// Props for the component
 	value: string;
 	onValueChange: (value: string) => void;
-	highlight: ((value: string) => string | React.ReactNode) | string;
+	language: string;
+	autoSave?: (value: string) => void;
+	autoSaveInterval?: number;
 	tabSize: number;
 	insertSpaces: boolean;
 	ignoreTabKey: boolean;
@@ -72,66 +81,37 @@ type History = {
 	offset: number;
 };
 
-const KEYCODE_ENTER = 13;
-const KEYCODE_TAB = 9;
-const KEYCODE_BACKSPACE = 8;
-const KEYCODE_Y = 89;
-const KEYCODE_Z = 90;
-const KEYCODE_M = 77;
-const KEYCODE_PARENS = 57;
-const KEYCODE_BRACKETS = 219;
-const KEYCODE_QUOTE = 222;
-const KEYCODE_BACK_QUOTE = 192;
-const KEYCODE_ESCAPE = 27;
-
 const HISTORY_LIMIT = 100;
 const HISTORY_TIME_GAP = 3000;
 
-const isWindows = 'navigator' in global && /Win/i.test(navigator.platform);
 const isMacLike = 'navigator' in global && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
-const className = 'react-simple-code-editor__textarea';
-
-const cssText = /* CSS */ `
-/**
- * Reset the text fill color so that placeholder is visible
- */
-.${className}:empty {
-  -webkit-text-fill-color: inherit !important;
-}
-/**
- * Hack to apply on some CSS on IE10 and IE11
- */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  /**
-    * IE doesn't support '-webkit-text-fill-color'
-    * So we use 'color: transparent' to make the text transparent on IE
-    * Unlike other browsers, it doesn't affect caret color in IE
-    */
-  .${className} {
-    color: transparent !important;
-  }
-  .${className}::selection {
-    background-color: #accef7 !important;
-    color: transparent !important;
-  }
-}
-`;
-
-export class SimpleEditor extends React.Component<Props, State> {
+export class EditorImpl extends React.Component<Props, State> {
 	static defaultProps = {
 		tabSize: 2,
 		insertSpaces: true,
 		ignoreTabKey: false,
 		padding: 0,
+		autoSaveInterval: 5000,
 	};
 
 	state = {
 		capture: true,
 	};
 
+	_autoSaveIntervalId?: number;
+
 	componentDidMount() {
 		this._recordCurrentState();
+		this._autoSaveIntervalId = setInterval(() => {
+			if (this.props.autoSave && this._input?.value) {
+				this.props.autoSave(this._input.value);
+			}
+		}, this.props.autoSaveInterval) as unknown as number;
+	}
+
+	componentWillUnmount() {
+		clearInterval(this._autoSaveIntervalId);
 	}
 
 	_recordCurrentState = () => {
@@ -269,14 +249,13 @@ export class SimpleEditor extends React.Component<Props, State> {
 			}
 		}
 
-		if (e.keyCode === KEYCODE_ESCAPE) {
+		if (e.key === 'Escapse') {
 			(e.target as HTMLTextAreaElement).blur();
 		}
 
 		const { value, selectionStart, selectionEnd } = e.target as HTMLTextAreaElement;
-
 		const tabCharacter = (insertSpaces ? ' ' : '\t').repeat(tabSize);
-		if (e.keyCode === KEYCODE_TAB && !ignoreTabKey && this.state.capture) {
+		if (e.key === 'Tab' && !ignoreTabKey && this.state.capture) {
 			// Prevent focus change
 			e.preventDefault();
 
@@ -345,7 +324,7 @@ export class SimpleEditor extends React.Component<Props, State> {
 					selectionEnd: updatedSelection,
 				});
 			}
-		} else if (e.keyCode === KEYCODE_BACKSPACE) {
+		} else if (e.key === 'Backspace') {
 			const hasSelection = selectionStart !== selectionEnd;
 			const textBeforeCaret = value.substring(0, selectionStart);
 
@@ -363,7 +342,7 @@ export class SimpleEditor extends React.Component<Props, State> {
 					selectionEnd: updatedSelection,
 				});
 			}
-		} else if (e.keyCode === KEYCODE_ENTER) {
+		} else if (e.key === 'Enter') {
 			// Ignore selections
 			if (selectionStart === selectionEnd) {
 				// Get the current line
@@ -386,34 +365,39 @@ export class SimpleEditor extends React.Component<Props, State> {
 					});
 				}
 			}
-		} else if (
-			e.keyCode === KEYCODE_PARENS ||
-			e.keyCode === KEYCODE_BRACKETS ||
-			e.keyCode === KEYCODE_QUOTE ||
-			e.keyCode === KEYCODE_BACK_QUOTE
-		) {
+		} else if (e.key === '(' || e.key === '{' || e.key === '[' || e.key === "'" || e.key === '"') {
 			let chars;
-
-			if (e.keyCode === KEYCODE_PARENS && e.shiftKey) {
-				chars = ['(', ')'];
-			} else if (e.keyCode === KEYCODE_BRACKETS) {
-				if (e.shiftKey) {
+			switch (e.key) {
+				case '(':
+					chars = ['(', ')'];
+					break;
+				case '{':
 					chars = ['{', '}'];
-				} else {
+					break;
+				case '[':
 					chars = ['[', ']'];
-				}
-			} else if (e.keyCode === KEYCODE_QUOTE) {
-				if (e.shiftKey) {
-					chars = ['"', '"'];
-				} else {
+					break;
+				case "'":
 					chars = ["'", "'"];
-				}
-			} else if (e.keyCode === KEYCODE_BACK_QUOTE && !e.shiftKey) {
-				chars = ['`', '`'];
+					break;
+				case '"':
+					chars = ['"', '""'];
+					break;
 			}
 
-			// If text is selected, wrap them in the characters
-			if (selectionStart !== selectionEnd && chars) {
+			if (
+				selectionStart === selectionEnd &&
+				value[selectionStart] === e.key &&
+				(e.key === "'" || e.key === '"')
+			) {
+				e.preventDefault();
+
+				this._applyEdits({
+					value,
+					selectionStart: selectionStart + 1,
+					selectionEnd: selectionEnd + 1,
+				});
+			} else if (chars) {
 				e.preventDefault();
 
 				this._applyEdits({
@@ -424,16 +408,27 @@ export class SimpleEditor extends React.Component<Props, State> {
 						chars[1] +
 						value.substring(selectionEnd),
 					// Update caret position
-					selectionStart,
-					selectionEnd: selectionEnd + 2,
+					selectionStart: selectionStart === selectionEnd ? selectionStart + 1 : selectionStart,
+					selectionEnd: selectionStart === selectionEnd ? selectionEnd + 1 : selectionEnd + 2,
+				});
+			}
+		} else if (e.key === ')' || e.key === '}' || e.key === ']') {
+			// Skip over existing closing pair
+			if (selectionStart === selectionEnd && value[selectionStart] === e.key) {
+				e.preventDefault();
+
+				this._applyEdits({
+					value,
+					selectionStart: selectionStart + 1,
+					selectionEnd: selectionEnd + 1,
 				});
 			}
 		} else if (
 			(isMacLike
 				? // Trigger undo with ⌘+Z on Mac
-				  e.metaKey && e.keyCode === KEYCODE_Z
+				  e.metaKey && e.key === 'z'
 				: // Trigger undo with Ctrl+Z on other platforms
-				  e.ctrlKey && e.keyCode === KEYCODE_Z) &&
+				  e.ctrlKey && e.key === 'z') &&
 			!e.shiftKey &&
 			!e.altKey
 		) {
@@ -443,18 +438,15 @@ export class SimpleEditor extends React.Component<Props, State> {
 		} else if (
 			(isMacLike
 				? // Trigger redo with ⌘+Shift+Z on Mac
-				  e.metaKey && e.keyCode === KEYCODE_Z && e.shiftKey
-				: isWindows
-				? // Trigger redo with Ctrl+Y on Windows
-				  e.ctrlKey && e.keyCode === KEYCODE_Y
+				  e.metaKey && e.key === 'z' && e.shiftKey
 				: // Trigger redo with Ctrl+Shift+Z on other platforms
-				  e.ctrlKey && e.keyCode === KEYCODE_Z && e.shiftKey) &&
+				  e.ctrlKey && e.key === 'z' && e.shiftKey) &&
 			!e.altKey
 		) {
 			e.preventDefault();
 
 			this._redoEdit();
-		} else if (e.keyCode === KEYCODE_M && e.ctrlKey && (isMacLike ? e.shiftKey : true)) {
+		} else if (e.key === 'm' && e.ctrlKey && (isMacLike ? e.shiftKey : true)) {
 			e.preventDefault();
 
 			// Toggle capturing tab key so users can focus away
@@ -499,11 +491,12 @@ export class SimpleEditor extends React.Component<Props, State> {
 	render() {
 		const {
 			value,
+			language,
 			style,
 			padding,
-			highlight,
 			textareaId,
 			textareaClassName,
+			autoSaveInterval,
 			autoFocus,
 			disabled,
 			form,
@@ -535,7 +528,7 @@ export class SimpleEditor extends React.Component<Props, State> {
 			paddingLeft: padding,
 		};
 
-		const highlighted = typeof highlight === 'string' ? highlight : highlight(value);
+		const highlighted = Prism.highlight(value, Prism.languages[language], language);
 
 		return (
 			<div {...rest} style={{ ...styles.container, ...style }}>
@@ -546,7 +539,7 @@ export class SimpleEditor extends React.Component<Props, State> {
 						...styles.textarea,
 						...contentStyle,
 					}}
-					className={className + (textareaClassName ? ` ${textareaClassName}` : '')}
+					className={textareaClassName}
 					id={textareaId}
 					value={value}
 					onChange={this._handleChange}
@@ -578,8 +571,6 @@ export class SimpleEditor extends React.Component<Props, State> {
 						? { dangerouslySetInnerHTML: { __html: highlighted + '<br />' } }
 						: { children: highlighted })}
 				/>
-				{/* eslint-disable-next-line react/no-danger */}
-				<style type="text/css" dangerouslySetInnerHTML={{ __html: cssText }} />
 			</div>
 		);
 	}
@@ -605,7 +596,7 @@ const styles: {
 		height: '100%',
 		width: '100%',
 		resize: 'none',
-		color: 'inherit',
+		color: 'transparent',
 		overflow: 'hidden',
 		fontSmooth: 'never',
 	},
