@@ -20,13 +20,11 @@ export const s3PathToUrl = (path: string) => {
 	return prefix.endsWith('/') ? prefix + path : prefix + '/' + path;
 };
 
-export const readS3FileFromPath = (path: string): Promise<string> =>
-	resolvePath(path)
-		.then(s3PathToUrl)
-		.then((url) => fetch(url))
+export const readS3FileFromPath = (resolvedPath: string): Promise<string> =>
+	fetch(s3PathToUrl(resolvedPath))
 		.then((resp) => new Promise((resolve, reject) => resp.text().then(resp.ok ? resolve : reject)));
 
-const resolvePath = async (path: string): Promise<string> => {
+export const resolvePath = async (path: string): Promise<string> => {
 	path = posix.join(process.env.S3_OBJECT_PREFIX, path);
 
 	if (path.endsWith('.md')) return path;
@@ -34,7 +32,6 @@ const resolvePath = async (path: string): Promise<string> => {
 	if (path.endsWith('/')) path = path.slice(0, -1);
 
 	return await new Promise((resolve, reject) => {
-		console.log('list obj: ', path);
 		const stream = s3Client.listObjectsV2(process.env.S3_BUCKET, path, true);
 		stream.on('data', (item) => {
 			if (!item.prefix) {

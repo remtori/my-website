@@ -6,7 +6,7 @@ import { FunctionComponent, useState } from 'react';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope, faUser } from '@fortawesome/free-solid-svg-icons';
-import { Login } from '~/components/Login';
+import { Account } from '~/components/Account';
 
 import miniIcon from '@public/icon-minimal.png';
 import styles from '~/styles/Layout.module.scss';
@@ -69,7 +69,7 @@ const Header: FunctionComponent = () => {
 				overlayClassName={styles.modalOverlay}
 				onRequestClose={() => setLoginVisible(false)}
 			>
-				<Login />
+				<Account closeModal={() => setLoginVisible(false)} />
 			</Modal>
 		</>
 	);

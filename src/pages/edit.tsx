@@ -1,6 +1,5 @@
 import { GetServerSideProps } from 'next';
 import { Editor } from '~/components/Editor';
-import { streamToString } from '~/lib/util.server';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
 	const { path } = ctx.query;
