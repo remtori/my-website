@@ -3,7 +3,7 @@ import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import googleIcon from '@public/google.svg';
-import type { User } from 'firebase/auth'
+import type { User } from 'firebase/auth';
 import { cx } from '~/lib/util';
 
 import styles from '~/styles/Account.module.scss';
@@ -15,11 +15,9 @@ interface Props {
 export const Account: FunctionComponent<Props> = ({ closeModal }) => {
 	const [account, setAccount] = useState<User | null>(null);
 
-
 	useEffect(() => {
 		let didUnmount = false;
-		import('~/lib/client-sdk')
-			.then((m) => !didUnmount && setAccount(m.auth.currentUser));
+		import('~/lib/client-sdk').then((m) => !didUnmount && setAccount(m.auth.currentUser));
 
 		return () => {
 			didUnmount = true;
@@ -28,13 +26,13 @@ export const Account: FunctionComponent<Props> = ({ closeModal }) => {
 
 	return (
 		<div className={styles.account}>
-			{ account ? <AccountInfo account={account} closeModal={closeModal} /> : <Login closeModal={closeModal} /> }
+			{account ? <AccountInfo account={account} closeModal={closeModal} /> : <Login closeModal={closeModal} />}
 			<button type="button" onClick={closeModal}>
 				Close
 			</button>
 		</div>
-	)
-}
+	);
+};
 
 const Login: FunctionComponent<Props> = ({ closeModal }) => {
 	const [error, setError] = useState('');
@@ -110,8 +108,8 @@ const AccountInfo: FunctionComponent<Props & { account: User }> = ({ account, cl
 	useEffect(() => {
 		const logout = () => {
 			closeModal();
-			import('~/lib/client-sdk').then(m => m.auth.signOut());
-		}
+			import('~/lib/client-sdk').then((m) => m.auth.signOut());
+		};
 
 		logoutRef.current?.addEventListener('click', logout);
 		return () => logoutRef.current?.removeEventListener('click', logout);
@@ -121,7 +119,9 @@ const AccountInfo: FunctionComponent<Props & { account: User }> = ({ account, cl
 		<>
 			<img className={styles.avatar} src={account.photoURL!} alt="User Avatar" />
 			<span className={styles.displayName}>{account.displayName}</span>
-			<button type='button' ref={logoutRef}>Log out</button>
+			<button type="button" ref={logoutRef}>
+				Log out
+			</button>
 		</>
 	);
-}
+};

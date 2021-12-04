@@ -21,10 +21,9 @@ export const s3PathToUrl = (path: string) => {
 };
 
 export const readS3FileFromPath = (resolvedPath: string): Promise<string> =>
-	fetch(s3PathToUrl(resolvedPath))
-		.then((resp) => new Promise((resolve, reject) => resp.text().then(resp.ok ? resolve : reject)));
+	fetch(s3PathToUrl(resolvedPath)).then((resp) => resp.text());
 
-export const resolvePath = async (path: string): Promise<string> => {
+export const resolvePath = async (path: string): Promise<string | undefined> => {
 	path = posix.join(process.env.S3_OBJECT_PREFIX, path);
 
 	if (path.endsWith('.md')) return path;
@@ -42,7 +41,7 @@ export const resolvePath = async (path: string): Promise<string> => {
 			}
 		});
 
-		stream.on('end', () => resolve(path + '/index.md'));
+		stream.on('end', () => resolve(undefined));
 		stream.on('error', reject);
 	});
 };

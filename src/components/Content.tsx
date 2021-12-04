@@ -5,16 +5,20 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import styles from '~/styles/Content.module.scss';
 
-export const Content: FunctionComponent<{ meta: Record<string, any>; html: string, path: string }> = ({ meta, html, path }) => {
+export const Content: FunctionComponent<{ meta: Record<string, any>; html: string; path: string }> = ({
+	meta,
+	html,
+	path,
+}) => {
 	const [canEdit, setCanEdit] = useState(false);
 
 	useEffect(() => {
 		let didUnmount = false;
-		import('~/lib/client-sdk')
-			.then((m) => m.auth.onAuthStateChanged((user) => {
-				if (!didUnmount)
-					setCanEdit(user != null);
-			}));
+		import('~/lib/client-sdk').then((m) =>
+			m.auth.onAuthStateChanged((user) => {
+				if (!didUnmount) setCanEdit(user != null);
+			})
+		);
 
 		return () => {
 			didUnmount = true;

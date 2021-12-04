@@ -9,6 +9,11 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 	try {
 		const resolvedPath = await resolvePath(path);
+		if (!resolvedPath) {
+			console.log(`No file found for: ${path}`);
+			return { notFound: true };
+		}
+
 		const content = await readS3FileFromPath(resolvedPath);
 		const { meta, html } = await renderMarkdown(content);
 
@@ -16,15 +21,12 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 			props: {
 				meta,
 				html,
-				path: resolvePath,
+				path: resolvedPath,
 			},
 		};
 	} catch (err) {
 		console.log(`Error render ${slug} -> ${path}: `, err);
-
-		return {
-			notFound: true,
-		};
+		return { notFound: true };
 	}
 };
 
