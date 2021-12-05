@@ -2,6 +2,8 @@ import headMatter from 'gray-matter';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import remarkPrism from 'remark-prism';
+import 'prismjs/plugins/diff-highlight/prism-diff-highlight';
+import 'prismjs/plugins/line-numbers/prism-line-numbers';
 
 const processor = remark()
 	.use(remarkHtml, { sanitize: false }) // Required to work with remark-prism
