@@ -14,11 +14,11 @@ export const Content: FunctionComponent<{ meta: Record<string, any>; html: strin
 
 	useEffect(() => {
 		let didUnmount = false;
-		import('~/lib/client-sdk').then((m) =>
-			m.auth.onAuthStateChanged((user) => {
+		import('~/lib/client-sdk')
+			.then((m) => m.authUser())
+			.then((user) => {
 				if (!didUnmount) setCanEdit(user != null);
-			})
-		);
+			});
 
 		return () => {
 			didUnmount = true;

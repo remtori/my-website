@@ -27,6 +27,10 @@ import React from 'react';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-markdown';
 import 'prismjs/plugins/autoloader/prism-autoloader';
+
+import styles from '~/styles/EditorImpl.module.scss';
+import { cx } from '~/lib/util';
+
 if (typeof window !== 'undefined') {
 	Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/';
 }
@@ -41,7 +45,6 @@ type Props = React.HTMLAttributes<HTMLDivElement> & {
 	tabSize: number;
 	insertSpaces: boolean;
 	ignoreTabKey: boolean;
-	padding: number | string;
 	style?: {};
 
 	// Props for the textarea
@@ -91,7 +94,6 @@ export class EditorImpl extends React.Component<Props, State> {
 		tabSize: 2,
 		insertSpaces: true,
 		ignoreTabKey: false,
-		padding: 0,
 		autoSaveInterval: 5000,
 	};
 
@@ -493,7 +495,6 @@ export class EditorImpl extends React.Component<Props, State> {
 			value,
 			language,
 			style,
-			padding,
 			textareaId,
 			textareaClassName,
 			autoSaveInterval,
@@ -521,25 +522,20 @@ export class EditorImpl extends React.Component<Props, State> {
 			...rest
 		} = this.props;
 
-		const contentStyle = {
-			paddingTop: padding,
-			paddingRight: padding,
-			paddingBottom: padding,
-			paddingLeft: padding,
-		};
-
-		const highlighted = Prism.highlight(value, Prism.languages[language], language);
+		const highlighted = Prism.highlight(value, Prism.languages[language], language)
+			.split('\n')
+			.map((text, idx) => (
+				<React.Fragment key={idx}>
+					<span className={styles.lineNumber}>{idx + 1}</span>
+					<span dangerouslySetInnerHTML={{ __html: text + '\n' }} />
+				</React.Fragment>
+			));
 
 		return (
-			<div {...rest} style={{ ...styles.container, ...style }}>
+			<div {...rest} className={styles.container} style={style}>
 				<textarea
 					ref={(c) => (this._input = c)}
-					style={{
-						...styles.editor,
-						...styles.textarea,
-						...contentStyle,
-					}}
-					className={textareaClassName}
+					className={cx(textareaClassName, styles.editor)}
 					id={textareaId}
 					value={value}
 					onChange={this._handleChange}
@@ -564,65 +560,12 @@ export class EditorImpl extends React.Component<Props, State> {
 					data-gramm={false}
 				/>
 				<pre
-					className={preClassName}
+					className={cx(preClassName, styles.editor, styles.highlight)}
 					aria-hidden="true"
-					style={{ ...styles.editor, ...styles.highlight, ...contentStyle }}
-					{...(typeof highlighted === 'string'
-						? { dangerouslySetInnerHTML: { __html: highlighted + '<br />' } }
-						: { children: highlighted })}
-				/>
+				>
+					{highlighted}
+				</pre>
 			</div>
 		);
 	}
 }
-
-const styles: {
-	container: React.CSSProperties;
-	textarea: React.CSSProperties;
-	highlight: React.CSSProperties;
-	editor: React.CSSProperties;
-} = {
-	container: {
-		position: 'relative',
-		textAlign: 'left',
-		boxSizing: 'border-box',
-		padding: 0,
-		overflow: 'hidden',
-	},
-	textarea: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		height: '100%',
-		width: '100%',
-		resize: 'none',
-		color: 'transparent',
-		overflow: 'hidden',
-		fontSmooth: 'never',
-	},
-	highlight: {
-		position: 'relative',
-		pointerEvents: 'none',
-	},
-	editor: {
-		margin: 0,
-		border: 0,
-		background: 'none',
-		boxSizing: 'inherit',
-		display: 'inherit',
-		fontFamily: 'inherit',
-		fontSize: 'inherit',
-		fontStyle: 'inherit',
-		fontVariantLigatures: 'inherit',
-		fontWeight: 'inherit',
-		letterSpacing: 'inherit',
-		lineHeight: 'inherit',
-		tabSize: 'inherit',
-		textIndent: 'inherit',
-		textRendering: 'inherit',
-		textTransform: 'inherit',
-		whiteSpace: 'pre-wrap',
-		wordBreak: 'keep-all',
-		overflowWrap: 'break-word',
-	},
-};

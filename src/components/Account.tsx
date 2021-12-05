@@ -17,7 +17,7 @@ export const Account: FunctionComponent<Props> = ({ closeModal }) => {
 
 	useEffect(() => {
 		let didUnmount = false;
-		import('~/lib/client-sdk').then((m) => !didUnmount && setAccount(m.auth.currentUser));
+		import('~/lib/client-sdk').then((m) => m.authUser()).then((user) => !didUnmount && setAccount(user));
 
 		return () => {
 			didUnmount = true;
@@ -70,15 +70,18 @@ const Login: FunctionComponent<Props> = ({ closeModal }) => {
 				.catch((err) => setError(err));
 		};
 
-		formRef.current?.addEventListener('submit', handleForm);
-		githubRef.current?.addEventListener('click', signInGithub);
-		googleRef.current?.addEventListener('click', signInGoogle);
+		const formEle = formRef.current;
+		const githubEle = githubRef.current;
+		const googleEle = googleRef.current;
+		formEle?.addEventListener('submit', handleForm);
+		githubEle?.addEventListener('click', signInGithub);
+		googleEle?.addEventListener('click', signInGoogle);
 		return () => {
-			formRef.current?.removeEventListener('submit', handleForm);
-			githubRef.current?.removeEventListener('click', signInGithub);
-			googleRef.current?.removeEventListener('click', signInGoogle);
+			formEle?.removeEventListener('submit', handleForm);
+			githubEle?.removeEventListener('click', signInGithub);
+			googleEle?.removeEventListener('click', signInGoogle);
 		};
-	}, []);
+	}, [ closeModal ]);
 
 	return (
 		<>
@@ -88,7 +91,7 @@ const Login: FunctionComponent<Props> = ({ closeModal }) => {
 				<span className={styles.text}>Sign in with Github</span>
 			</button>
 			<button type="button" ref={googleRef} className={cx(styles.brandLogin, styles.google)}>
-				<Image src={googleIcon} width={24} height={24} layout="fixed" />
+				<Image src={googleIcon} alt="Google Logo" width={24} height={24} layout="fixed" />
 				<span className={styles.text}>Sign in with Google</span>
 			</button>
 			<form>
@@ -108,12 +111,13 @@ const AccountInfo: FunctionComponent<Props & { account: User }> = ({ account, cl
 	useEffect(() => {
 		const logout = () => {
 			closeModal();
-			import('~/lib/client-sdk').then((m) => m.auth.signOut());
+			import('~/lib/client-sdk').then((m) => m.signOut());
 		};
 
-		logoutRef.current?.addEventListener('click', logout);
-		return () => logoutRef.current?.removeEventListener('click', logout);
-	}, []);
+		const logoutElement = logoutRef.current;
+		logoutElement?.addEventListener('click', logout);
+		return () => logoutElement?.removeEventListener('click', logout);
+	}, [ closeModal ]);
 
 	return (
 		<>

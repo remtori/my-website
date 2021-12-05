@@ -1,18 +1,21 @@
 .container {
-	font-family: Consolas, monospace;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1em 0;
 
-	.editor {
-		caret-color: #fff;
-		font-family: Consolas, monospace;
-		outline: none;
-
-		&::selection {
-			color: transparent;
-			background-color: #4398ff88;
-		}
+	input {
+		margin: 1em;
 	}
 
-	.pre {
-		color: #ccc;
+	.editor {
+		margin: 2em 0;
+	}
+
+	.status {
+		padding: 8px;
+
+		color: #721c24;
+		background-color: #f8d7da;
 	}
 }
