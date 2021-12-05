@@ -43,3 +43,31 @@ export const resolvePath = async (path: string): Promise<string | undefined> => 
 		stream.on('error', reject);
 	});
 };
+
+export const listPaths = (): Promise<string[]> => new Promise((resolve, reject) => {
+	const out: string[] = [];
+	const stream = s3Client.listObjectsV2(process.env.S3_BUCKET, process.env.S3_OBJECT_PREFIX, true);
+
+	stream.on('data', (item) => {
+		if (item.prefix) // Folder
+			return;
+
+		const parts = posix.parse(item.name);
+		if (parts.ext !== '.md')
+			return;
+
+		let dir = parts.dir.slice(process.env.S3_OBJECT_PREFIX.length);
+		if (dir[0] !== '/')
+			dir = '/' + dir;
+
+		if (parts.name === 'index') {
+			out.push(dir);
+		} else {
+			out.push(posix.join(dir, parts.base));
+		}
+	});
+
+	stream.on('end', () => resolve(out));
+	stream.on('error', reject);
+})
+
