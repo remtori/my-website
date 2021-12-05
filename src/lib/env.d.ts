@@ -6,7 +6,6 @@ declare module NodeJS {
 		S3_BUCKET: string;
 		S3_OBJECT_PREFIX: string;
 		S3_CDN_PREFIX: string;
-		FIREBASE_ADMIN_USER_ID: string;
 		FIREBASE_PROJECT_ID: string;
 		FIREBASE_CLIENT_EMAIL: string;
 		FIREBASE_PRIVATE_KEY: string;

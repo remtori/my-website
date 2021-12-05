@@ -559,10 +559,7 @@ export class EditorImpl extends React.Component<Props, State> {
 					spellCheck={false}
 					data-gramm={false}
 				/>
-				<pre
-					className={cx(preClassName, styles.editor, styles.highlight)}
-					aria-hidden="true"
-				>
+				<pre className={cx(preClassName, styles.editor, styles.highlight)} aria-hidden="true">
 					{highlighted}
 				</pre>
 			</div>

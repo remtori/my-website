@@ -11,7 +11,7 @@ export function cx(...args: any[]): string {
 	return out;
 }
 
-export async function uploadFile(path: string, file: Blob): Promise<string> {
+export async function uploadFile(path: string, data: Blob | string): Promise<string> {
 	path = path[0] === '/' ? path : '/' + path;
 
 	const user = await import('./client-sdk').then((m) => m.authUser());
@@ -36,14 +36,23 @@ export async function uploadFile(path: string, file: Blob): Promise<string> {
 		throw new Error(resp.mesage);
 	}
 
+	let body = data;
+	if (typeof data === 'string') {
+		body = await new Response(
+			new Blob([data], { type: 'text/plain' })
+				.stream()
+				/* @ts-ignore */
+				.pipeThrough(new CompressionStream('gzip'))
+		).blob();
+	}
+
 	await fetch(resp.uploadUrl, {
 		method: 'PUT',
 		headers: {
 			'Content-Encoding': 'gzip',
-			'Content-Type': mime.contentType(path) || 'application/octet-stream',
+			'Content-Type': mime.lookup(path) || 'application/octet-stream',
 		},
-		/* @ts-ignore */
-		body: file.stream().pipeThrough(new CompressionStream('gzip')),
+		body,
 	})
 		.then((r) => r.text())
 		.then((resp) => {

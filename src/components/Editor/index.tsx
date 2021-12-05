@@ -19,7 +19,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ pageContent, path, isNe
 	const onSave = useCallback(() => {
 		setStatus('Saving...');
 		const filePath = pathRef.current?.value ?? path;
-		uploadFile(filePath, new Blob([code], { type: 'text/plain' }))
+		uploadFile(filePath, code)
 			.then(() => {
 				setStatus('');
 			})
@@ -35,13 +35,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ pageContent, path, isNe
 				Path
 				<input ref={pathRef} type="text" defaultValue={path} />
 			</label>
-			<EditorImpl
-				className={styles.editor}
-				value={code}
-				onValueChange={setCode}
-				language="markdown"
-				tabSize={4}
-			/>
+			<EditorImpl value={code} onValueChange={setCode} language="markdown" tabSize={4} />
 			<button onClick={onSave}>Save</button>
 		</div>
 	);

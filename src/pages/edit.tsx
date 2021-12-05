@@ -14,8 +14,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 	}
 
 	let pageContent = '';
-	pageContent = await readS3FileFromPath(path);
-	// console.log(`Edit ${path}:\n${pageContent}`);
+	try {
+		pageContent = await readS3FileFromPath(path);
+		// console.log(`Edit ${path}:\n${pageContent}`);
+	} catch (e) {
+		console.log(`Error fetch ${path}:`, e);
+	}
 
 	return {
 		props: {

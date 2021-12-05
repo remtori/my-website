@@ -81,7 +81,7 @@ const Login: FunctionComponent<Props> = ({ closeModal }) => {
 			githubEle?.removeEventListener('click', signInGithub);
 			googleEle?.removeEventListener('click', signInGoogle);
 		};
-	}, [ closeModal ]);
+	}, [closeModal]);
 
 	return (
 		<>
@@ -117,7 +117,7 @@ const AccountInfo: FunctionComponent<Props & { account: User }> = ({ account, cl
 		const logoutElement = logoutRef.current;
 		logoutElement?.addEventListener('click', logout);
 		return () => logoutElement?.removeEventListener('click', logout);
-	}, [ closeModal ]);
+	}, [closeModal]);
 
 	return (
 		<>
