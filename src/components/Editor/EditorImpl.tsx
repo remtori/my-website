@@ -383,7 +383,7 @@ export class EditorImpl extends React.Component<Props, State> {
 					chars = ["'", "'"];
 					break;
 				case '"':
-					chars = ['"', '""'];
+					chars = ['"', '"'];
 					break;
 			}
 
