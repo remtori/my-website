@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import googleIcon from '@public/google.svg';
 import type { User } from 'firebase/auth';
-import { cx } from '~/lib/util';
+import { cx } from '~/lib/api.client';
 
 import styles from '~/styles/Account.module.scss';
 

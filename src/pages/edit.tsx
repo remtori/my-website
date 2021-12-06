@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { Editor } from '~/components/Editor';
-import { readS3FileFromPath, resolvePath } from '~/lib/util.server';
+import { readS3FileFromPath, resolvePath } from '~/lib/api.server';
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
 	let { path } = ctx.query;

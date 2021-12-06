@@ -29,7 +29,7 @@ import 'prismjs/components/prism-markdown';
 import 'prismjs/plugins/autoloader/prism-autoloader';
 
 import styles from '~/styles/EditorImpl.module.scss';
-import { cx } from '~/lib/util';
+import { cx } from '~/lib/api.client';
 
 if (typeof window !== 'undefined') {
 	Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/';

@@ -1,4 +1,4 @@
-import { presignUploadUrl, s3PathToUrl, getPermLevel } from '~/lib/util.server';
+import { presignUploadUrl, s3PathToUrl, getPermLevel } from '~/lib/api.server';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isAbsolute } from 'path';
 

@@ -10,7 +10,7 @@ import { Account } from '~/components/Account';
 
 import miniIcon from '@public/icon-minimal.png';
 import styles from '~/styles/Layout.module.scss';
-import { cx } from '~/lib/util';
+import { cx } from '~/lib/api.client';
 
 Modal.setAppElement('#__next');
 

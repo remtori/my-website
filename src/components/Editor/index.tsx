@@ -3,7 +3,7 @@ import { EditorImpl } from './EditorImpl';
 import '~/lib/spell-check/prism-spell-checker';
 
 import styles from '~/styles/Editor.module.scss';
-import { uploadFile } from '~/lib/util';
+import { uploadFile } from '~/lib/api.client';
 
 interface EditorProps {
 	isNewPage?: boolean;
