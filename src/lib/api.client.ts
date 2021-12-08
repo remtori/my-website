@@ -11,6 +11,17 @@ export function cx(...args: any[]): string {
 	return out;
 }
 
+export const clientImport = (url: string): Promise<void> => new Promise((resolve, reject) => {
+	if (document.querySelector(`script[src="${url}"]`))
+		return reject();
+
+	const script = document.createElement('script');
+	script.onload = () => resolve();
+	script.onerror = reject;
+	script.src = url;
+	document.body.appendChild(script);
+});
+
 export async function uploadFile(path: string, data: Blob | string): Promise<string> {
 	path = path[0] === '/' ? path : '/' + path;
 

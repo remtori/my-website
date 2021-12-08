@@ -1,6 +1,5 @@
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { EditorImpl } from './EditorImpl';
-import '~/lib/spell-check/prism-spell-checker';
 
 import styles from '~/styles/Editor.module.scss';
 import { uploadFile } from '~/lib/api.client';

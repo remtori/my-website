@@ -24,15 +24,13 @@
 
 import React from 'react';
 
-import Prism from 'prismjs';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/plugins/autoloader/prism-autoloader';
+import highlightjs from 'highlight.js/lib/core';
 
 import styles from '~/styles/EditorImpl.module.scss';
-import { cx } from '~/lib/api.client';
+import { clientImport, cx } from '~/lib/api.client';
 
 if (typeof window !== 'undefined') {
-	Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/';
+	(window as any).hljs = highlightjs;
 }
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
@@ -522,14 +520,30 @@ export class EditorImpl extends React.Component<Props, State> {
 			...rest
 		} = this.props;
 
-		const highlighted = Prism.highlight(value, Prism.languages[language], language)
-			.split('\n')
-			.map((text, idx) => (
-				<React.Fragment key={idx}>
-					<span className={styles.lineNumber}>{idx + 1}</span>
-					<span dangerouslySetInnerHTML={{ __html: text + '\n' }} />
-				</React.Fragment>
-			));
+		let highlighted;
+		if (!highlightjs.getLanguage(language))
+		{
+			highlighted = [ <span key={-1} dangerouslySetInnerHTML={{__html: value}} /> ];
+			if (typeof window !== 'undefined')
+			{
+				console.log(`Language ${language} not found, loading...`);
+				clientImport(`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.3/languages/${language}.min.js`)
+					.then(() => this.forceUpdate())
+					.catch(err => console.log(`Load language ${language} error`, err));
+			}
+		}
+		else
+		{
+			highlighted = highlightjs.highlight(value, { language })
+				.value
+				.split('\n')
+				.map((text, idx) => (
+					<React.Fragment key={idx}>
+						<span className={styles.lineNumber}>{idx + 1}</span>
+						<span dangerouslySetInnerHTML={{ __html: text + '\n' }} />
+					</React.Fragment>
+				));
+		}
 
 		return (
 			<div {...rest} className={styles.container} style={style}>
