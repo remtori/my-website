@@ -4,7 +4,7 @@
 	"scripts": {
 		"dev": "next dev -p 80",
 		"lint": "next lint",
-		"export": "next build && next export",
+		"export": "ls -lah && next info && next build && next export",
 		"analyze": "cross-env ANALYZE=true npm run build",
 		"format": "prettier --write src/**/*.{ts,tsx,scss} *.json *.js"
 	},
