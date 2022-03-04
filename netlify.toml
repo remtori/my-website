@@ -1,7 +1,10 @@
 [build]
 	base = "./"
 	publish = "./out"
-	command = "npm run export"
+	command = "next build && next export"
+
+[build.environment]
+NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 [[redirects]]
 from = "/drive"
