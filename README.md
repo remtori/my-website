@@ -10,55 +10,17 @@
 
 - [ ] Content manager page
 
-- [ ] Abstract API to hook this site up to any service instead of fine tune it to `Netlify`
-
 ## Setup
 
-- Blogs (/blogs/[id]) and Projects (/projects/[id]) are hosted in this repo at `/content`
+- Blogs (/blog/[id]) and Projects (/project/[id]) are hosted in this repo at `/content`
 
-- List of project and blogs is hosted on a `Mongo` DB
-
-- API (inside `/functions`) is hosted on a cloud functions service
-
-- Files uploaded is store on a cloud service
+- Using `Netlify CMS` for content editing
 
 ## Folder structure
 
-- `/src` contain all the source code for the page
-
-- `/src/assets/` contain all the assets that will be embed via either css or html
-
-- `/public` contain all the files that will be hosted directly
-
-- `/functions` API / server stuff
-
-- `/webpack` script to configure & build the page
-
-- `/buildconfig.js` a file that contain absolute path to all the important directory as some config
+Typical `NextJs 12` + `Netlify CMS` folder structure
 
 ## API
-
-- Upload files
-
-```
-Request:
-	method: POST
-	url: /uploadFile
-	content-type: [FILE_TYPE]
-	body: [FILE_CONTENT]
-
-Response:
-	Ok: {
-		ok: true,
-		url: '/files/[HASH].[FILE_EXT]'
-	}
-
-	Error: {
-		ok: false,
-		message: i18n error key,
-		error: Error message with stacktrace (dev mode only)
-	}
-```
 
 - Search
 
@@ -136,30 +98,17 @@ Response:
 
 ```
 Routes:
+	/search              : Global search across blogs and projects
 
-	/**                : API endpoint as specified
+	/blog                : List of posted blogs with filter and search
 
-	/files/*               : Hosted file endpoint, with correct content-type
+	/blog/[id]           : An html or markdown rendered page
 
-	/search                : Global search across blogs and projects
+	/project             : List of "presentable" projects with filter and search
 
-	/editor                : [Auth] Online code editor for this repo
+	/project/build/[id]  : [Auth] An folder or single html page
 
-	/edit?file=[path]      : [Auth] Edit a specific in the repo
+	/project/log/[id]    : [Auth] Logs of the building process for project
 
-	/login                 : Login page
-
-	/blogs                 : List of posted blogs with filter and search
-
-	/blogs/[id]            : An html or markdown rendered page
-
-	/projects              : List of "presentable" projects with filter and search
-
-	/projects/build/[id]   : [Auth] An folder or single html page
-
-	/projects/logs/[id]    : [Auth] Logs of the building process for project
-
-	/projects/[id]         : A page that embed /projects/build/[id]
-
+	/project/[id]        : A page that embed /projects/build/[id]
 ```
-

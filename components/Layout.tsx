@@ -1,18 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image';
-import Modal from 'react-modal';
 import { FunctionComponent, useState } from 'react';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faEnvelope, faUser } from '@fortawesome/free-solid-svg-icons';
-import { Account } from '~/components/Account';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
-import miniIcon from '@public/icon-minimal.png';
 import styles from '~/styles/Layout.module.scss';
-import { cx } from '~/lib/api.client';
 
-Modal.setAppElement('#__next');
+const miniIcon = `/icon-minimal.png`;
 
 export const Layout: FunctionComponent = ({ children }) => {
 	return (
@@ -43,7 +38,7 @@ const Header: FunctionComponent = () => {
 				<div className={styles.nav}>
 					<Link href="/">
 						<a className={styles.home}>
-							<Image alt="site icon" src={miniIcon} width={40} height={40} layout="fixed" />
+							<img alt="site icon" src={miniIcon} width={40} height={40} />
 							<span className={styles.title}>{`Remtori's Comfy Home`}</span>
 						</a>
 					</Link>
@@ -51,26 +46,15 @@ const Header: FunctionComponent = () => {
 						<Link href="/about">
 							<a>ABOUT</a>
 						</Link>
-						<Link href="/blogs">
+						<Link href="/blog">
 							<a>BLOGS</a>
 						</Link>
 						<Link href="/">
 							<a>PROJECTS</a>
 						</Link>
-						<a className={styles.account} onClick={() => setLoginVisible(true)}>
-							<Icon icon={faUser} />
-						</a>
 					</nav>
 				</div>
 			</header>
-			<Modal
-				isOpen={loginVisible}
-				className={styles.modalContent}
-				overlayClassName={styles.modalOverlay}
-				onRequestClose={() => setLoginVisible(false)}
-			>
-				<Account closeModal={() => setLoginVisible(false)} />
-			</Modal>
 		</>
 	);
 };
@@ -82,7 +66,6 @@ const Footer: FunctionComponent = () => {
 				<span>Language: </span>
 				<select>
 					<option value="en">English</option>
-					<option value="vn">Vietnamese</option>
 				</select>
 			</div>
 			<div>
@@ -94,19 +77,19 @@ const Footer: FunctionComponent = () => {
 			<div>
 				<Link href="https://twitter.com/lqv_vn">
 					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconTwitter)} icon={faTwitter} />
+						<Icon className={cx(styles.icon, styles.iconTwitter)} icon={faTwitter as any} />
 						<span>@LQV_VN</span>
 					</a>
 				</Link>
 				<Link href="https://github.com/remtori">
 					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faGithub} />
+						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faGithub as any} />
 						<span>Remtori</span>
 					</a>
 				</Link>
 				<Link href="mailto:lqvu99+sites@gmail.com">
 					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faEnvelope} />
+						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faEnvelope as any} />
 						<span>lqvu99+sites@gmail.com</span>
 					</a>
 				</Link>
@@ -114,3 +97,7 @@ const Footer: FunctionComponent = () => {
 		</footer>
 	);
 };
+
+function cx(...args: string[]) {
+	return args.join(' ');
+}
