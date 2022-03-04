@@ -1,0 +1,54 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	font-size: 16px;
+}
+
+.listing {
+	display: flex;
+	flex-direction: column;
+
+
+}
+
+.item {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+}
+
+.left {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-right: 1em;
+
+	.thumbnail {
+		margin-bottom: 1em;
+
+		img {
+			max-width: 200px;
+		}
+	}
+}
+
+.right {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+
+	.title {
+		margin-bottom: 1em;
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+
+	.desc {
+		flex-grow: 1;
+	}
+
+	.date {
+		margin-bottom: 1em;
+		align-self: flex-end;
+	}
+}
