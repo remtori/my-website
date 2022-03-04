@@ -8,7 +8,7 @@ import styles from '~/styles/Content.module.scss';
 export const Content: FunctionComponent<{ meta: ContentMeta; html: string; path: string }> = ({ meta, html, path }) => {
 	return (
 		<div className={styles.contentContainer}>
-			<Link href={`/admin/${path}`}>
+			<Link href={`/admin/#/collections/${path}`}>
 				<a className={styles.edit}>
 					<FontAwesomeIcon icon={faEdit as any} />
 					<span>Edit this Page</span>

@@ -9,7 +9,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 		props: {
 			meta: content.attributes,
 			html: content.html,
-			path: `blog/${slug}.md`,
+			path: `blog/entries/${slug}`,
 		}
 	};
 };

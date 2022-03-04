@@ -23,7 +23,7 @@ export default function Home() {
 					`
 				}}
 			/>
-			<Content meta={content.attributes} html={content.html} path={`home.md`} />
+			<Content meta={content.attributes} html={content.html} path={`pages/entries/home.md`} />
 		</>
 	)
 };
