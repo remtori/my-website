@@ -7,6 +7,7 @@ export default function Home() {
 		<>
 			{/* NetlifyIdentity will redirect to homepage when login */}
 			<Script
+				id="netlifyIdentity"
 				strategy='afterInteractive'
 				dangerouslySetInnerHTML={{
 					__html: `
