@@ -8,3 +8,10 @@ NETLIFY_NEXT_PLUGIN_SKIP = "true"
 [[redirects]]
 from = "/drive"
 to   = "https://drive.google.com/drive/folders/0B9NuyBv-nQkBSEJjUXJ6Xy16aXM?resourcekey=0-ZDVVcBWFpHKhKmvC8OXE4Q&usp=sharing"
+
+[[redirects]]
+from   = "/*"
+to     = "https://internal.remtori.com/:splat"
+status = 200
+force  = false
+signed = "INTERNAL_API_TOKEN"
