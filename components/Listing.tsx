@@ -13,14 +13,14 @@ export const Listing: FunctionComponent<{ list: ListItem[] }> = ({ list }) => {
 				{list.map((item, i) => (
 					<div key={item.attributes.title + i} className={styles.item}>
 						<div className={styles.left}>
-							<Link href={`/blog/${item.slug}`}>
-								<a className={styles.thumbnail}><img src={item.attributes.thumbnail || '/404.png'} /></a>
+							<Link href={`/blog/${item.slug}`} className={styles.thumbnail}>
+								<img src={item.attributes.thumbnail || '/404.png'} />
 							</Link>
 						</div>
 						<div className={styles.right}>
 							<div className={styles.title}>
 								<Link href={`/blog/${item.slug}`}>
-									<a>{item.attributes.title}</a>
+									{item.attributes.title}
 								</Link>
 							</div>
 							<div className={styles.desc}>

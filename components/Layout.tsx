@@ -9,7 +9,7 @@ import styles from '~/styles/Layout.module.scss';
 
 const miniIcon = `/icon-minimal.png`;
 
-export const Layout: FunctionComponent = ({ children }) => {
+export const Layout: FunctionComponent<{ children: any[] }> = ({ children }) => {
 	return (
 		<>
 			<Head>
@@ -36,22 +36,14 @@ const Header: FunctionComponent = () => {
 		<>
 			<header className={styles.header}>
 				<div className={styles.nav}>
-					<Link href="/">
-						<a className={styles.home}>
-							<img alt="site icon" src={miniIcon} width={40} height={40} />
-							<span className={styles.title}>{`Remtori's Comfy Home`}</span>
-						</a>
+					<Link href="/" className={styles.home}>
+						<img alt="site icon" src={miniIcon} width={40} height={40} />
+						<span className={styles.title}>{`Remtori's Comfy Home`}</span>
 					</Link>
 					<nav>
-						<Link href="/about">
-							<a>ABOUT</a>
-						</Link>
-						<Link href="/blog">
-							<a>BLOGS</a>
-						</Link>
-						<Link href="/">
-							<a>PROJECTS</a>
-						</Link>
+						<Link href="/about">ABOUT</Link>
+						<Link href="/blog">BLOGS</Link>
+						<Link href="/tool">TOOLS</Link>
 					</nav>
 				</div>
 			</header>
@@ -71,27 +63,21 @@ const Footer: FunctionComponent = () => {
 			<div>
 				<span>Found an issue? </span>
 				<Link href="https://github.com/remtori/my-website">
-					<a>Help me fix it</a>
+					Help me fix it
 				</Link>
 			</div>
 			<div>
-				<Link href="https://twitter.com/lqv_vn">
-					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconTwitter)} icon={faTwitter as any} />
-						<span>@LQV_VN</span>
-					</a>
+				<Link href="https://twitter.com/lqv_vn" className={styles.social}>
+					<Icon className={cx(styles.icon, styles.iconTwitter)} icon={faTwitter as any} />
+					<span>@LQV_VN</span>
 				</Link>
-				<Link href="https://github.com/remtori">
-					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faGithub as any} />
-						<span>Remtori</span>
-					</a>
+				<Link href="https://github.com/remtori" className={styles.social}>
+					<Icon className={cx(styles.icon, styles.iconWhite)} icon={faGithub as any} />
+					<span>Remtori</span>
 				</Link>
-				<Link href="mailto:lqvu99+sites@gmail.com">
-					<a className={styles.social}>
-						<Icon className={cx(styles.icon, styles.iconWhite)} icon={faEnvelope as any} />
-						<span>lqvu99+sites@gmail.com</span>
-					</a>
+				<Link href="mailto:lqvu99+sites@gmail.com" className={styles.social}>
+					<Icon className={cx(styles.icon, styles.iconWhite)} icon={faEnvelope as any} />
+					<span>lqvu99+sites@gmail.com</span>
 				</Link>
 			</div>
 		</footer>
