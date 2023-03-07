@@ -9,7 +9,7 @@ import styles from '~/styles/Layout.module.scss';
 
 const miniIcon = `/icon-minimal.png`;
 
-export const Layout: FunctionComponent<{ children: any[] }> = ({ children }) => {
+export const Layout: FunctionComponent<{ children: any | any[] }> = ({ children }) => {
 	return (
 		<>
 			<Head>

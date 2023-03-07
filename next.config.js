@@ -9,10 +9,10 @@ const nextConfig = {
 			{ source: '/admin/:slug*', destination: '/admin/index.html' },
 		];
 	},
-	webpack: (configuration) => {
+	webpack: (configuration, { isServer }) => {
 		configuration.module.rules.push({
 			test: /\.md$/,
-			loader: path.resolve('./lib/md-loader.js'),
+			loader: path.resolve('./src/lib/md-loader.js'),
 		});
 
 		return configuration;
