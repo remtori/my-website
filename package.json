@@ -3,6 +3,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
+		"build": "next build && next export",
 		"lint": "next lint",
 		"analyze": "cross-env ANALYZE=true next build",
 		"format": "prettier --write src/**/*.{ts,tsx,scss} *.json *.js"
