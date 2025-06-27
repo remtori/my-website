@@ -67,17 +67,9 @@ const Footer: FunctionComponent = () => {
 				</Link>
 			</div>
 			<div>
-				<Link href="https://twitter.com/lqv_vn" className={styles.social}>
-					<Icon className={cx(styles.icon, styles.iconTwitter)} icon={faTwitter as any} />
-					<span>@LQV_VN</span>
-				</Link>
 				<Link href="https://github.com/remtori" className={styles.social}>
 					<Icon className={cx(styles.icon, styles.iconWhite)} icon={faGithub as any} />
 					<span>Remtori</span>
-				</Link>
-				<Link href="mailto:lqvu99+sites@gmail.com" className={styles.social}>
-					<Icon className={cx(styles.icon, styles.iconWhite)} icon={faEnvelope as any} />
-					<span>lqvu99+sites@gmail.com</span>
 				</Link>
 			</div>
 		</footer>
