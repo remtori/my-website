@@ -1,0 +1,11 @@
+.worktrees/
+bun.lock
+bun.lockb
+node_modules/
+dist/
+.env
+*.db
+*.db-shm
+*.db-wal
+.DS_Store
+*.tsbuildinfo

@@ -1,0 +1,39 @@
+{
+	"name": "@website/webui",
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"preview": "vite preview",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@mdx-js/mdx": "^3.1.0",
+		"@mdx-js/react": "^3.1.0",
+		"@tanstack/react-query": "^5.69.0",
+		"@tanstack/react-query-persist-client": "^5.69.0",
+		"@trpc/client": "^11.0.0",
+		"@trpc/react-query": "^11.0.0",
+		"idb-keyval": "^6.2.1",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-router": "^7.4.0"
+	},
+	"devDependencies": {
+		"@trpc/server": "^11.0.0",
+		"@tailwindcss/vite": "^4.0.14",
+		"@testing-library/react": "^16.3.0",
+		"@types/mdx": "^2.0.13",
+		"@types/react": "^19.0.10",
+		"@types/react-dom": "^19.0.4",
+		"@vitejs/plugin-react": "^4.3.4",
+		"@website/server": "workspace:*",
+		"jsdom": "^26.0.0",
+		"tailwindcss": "^4.0.14",
+		"typescript": "^5.8.2",
+		"vite": "^8.0.0",
+		"vite-plugin-pwa": "^0.21.1",
+		"vitest": "^3.0.9"
+	}
+}
