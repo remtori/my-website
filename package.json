@@ -1,7 +1,7 @@
 {
 	"name": "my-website",
 	"private": true,
-	"packageManager": "pnpm@9.15.0",
+	"packageManager": "pnpm@10.33.0",
 	"scripts": {
 		"dev": "concurrently --names webui,server --prefix-colors cyan,yellow \"pnpm --dir packages/webui dev\" \"pnpm --dir packages/server dev\"",
 		"build": "pnpm --dir packages/webui build && pnpm --dir packages/server build",
@@ -10,7 +10,7 @@
 		"format": "biome check --write packages/"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.10",
-		"concurrently": "^9.1.2"
+		"@biomejs/biome": "^2.4.12",
+		"concurrently": "^9.2.1"
 	}
 }
