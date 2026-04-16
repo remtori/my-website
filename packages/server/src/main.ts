@@ -14,6 +14,7 @@ if (env.NODE_ENV === 'production') {
 
 const port = getPort();
 
+console.log('Starting server...');
 await startup();
 console.log(`Server running on port ${port}`);
 

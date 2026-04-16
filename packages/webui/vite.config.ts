@@ -18,15 +18,17 @@ export default defineConfig(
 				// Static `public/manifest.webmanifest` — Vite 8 Rolldown ignores plugin bundle injection for it.
 				manifest: false,
 				includeAssets: [
-					'favicon.ico',
-					'robots.txt',
-					'apple-touch-icon.png',
-					'manifest.webmanifest',
-					'pwa-192x192.png',
-					'pwa-512x512.png',
-				],
+                    'favicon.ico',
+                    'robots.txt',
+                    'apple-touch-icon.png',
+                    'manifest.webmanifest',
+                    'pwa-192x192.png',
+                    'pwa-512x512.png',
+                ],
 				workbox: {
-					globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webmanifest}'],
+					globPatterns: ['assets/**/*.{js,css,mjs,wasm,woff2,woff,ttf,otf}'],
+					// Without this, Workbox serves precached `index.html` for navigations (e.g. `/drive`) and hides server redirects.
+					navigateFallback: null,
 					runtimeCaching: [
 						{
 							urlPattern: /^\/trpc\//i,
