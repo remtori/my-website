@@ -8,8 +8,7 @@ export default defineConfig({
 	sourcemap: true,
 	clean: true,
 	bundle: true,
-	minify: true,
-	tsconfig: 'tsconfig.json',
+	minify: false,
 	define: {
 		'process.env.NODE_ENV': '"production"',
 	},

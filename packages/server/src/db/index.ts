@@ -16,7 +16,7 @@ let _db: AppDb | undefined;
 let _pglite: PGlite | undefined;
 let _pool: Pool | undefined;
 
-const migrationsFolder = join(getServerPackageRoot(), 'src/db/migrations');
+const migrationsFolder = join(getServerPackageRoot(), 'migrations');
 
 async function closeDb(): Promise<void> {
 	if (_pool) {

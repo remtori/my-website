@@ -16,7 +16,7 @@
 		"strict": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["../server/src/*"]
+			"@website/server/*": ["../server/*"]
 		}
 	},
 	"include": ["src"]
