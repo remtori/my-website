@@ -1,5 +1,7 @@
 import { AwsClient } from 'aws4fetch';
 
+import { getEnv } from './runtime';
+
 export const POSTS_PREFIX = 'mdx/posts/';
 
 function clientForEnv(env: Env): AwsClient {
@@ -17,7 +19,8 @@ function bucketRootUrl(env: Env): string {
 }
 
 /** Path-style list: GET /bucket?list-type=2&prefix= */
-export async function listObjectsWithPrefix(env: Env, prefix: string): Promise<string[]> {
+export async function listObjectsWithPrefix(prefix: string): Promise<string[]> {
+	const env = getEnv();
 	if (!env.S3_ENDPOINT || !env.S3_BUCKET) {
 		return [];
 	}
@@ -38,13 +41,13 @@ export async function listObjectsWithPrefix(env: Env, prefix: string): Promise<s
 	return keys;
 }
 
-export async function listPostKeys(env: Env): Promise<string[]> {
-	console.log('listPostKeys');
-	const keys = await listObjectsWithPrefix(env, POSTS_PREFIX);
+export async function listPostKeys(): Promise<string[]> {
+	const keys = await listObjectsWithPrefix(POSTS_PREFIX);
 	return keys.filter((k) => k.endsWith('.mdx'));
 }
 
-export async function getObjectText(env: Env, key: string): Promise<string> {
+export async function getObjectText(key: string): Promise<string> {
+	const env = getEnv();
 	const url = `${bucketRootUrl(env)}/${key.split('/').map(encodeURIComponent).join('/')}`;
 	const aws = clientForEnv(env);
 	const res = await aws.fetch(url, { method: 'GET' });
@@ -55,7 +58,8 @@ export async function getObjectText(env: Env, key: string): Promise<string> {
 	return res.text();
 }
 
-export async function putObjectText(env: Env, key: string, body: string, contentType: string): Promise<void> {
+export async function putObjectText(key: string, body: string, contentType: string): Promise<void> {
+	const env = getEnv();
 	const url = `${bucketRootUrl(env)}/${key.split('/').map(encodeURIComponent).join('/')}`;
 	const aws = clientForEnv(env);
 	const res = await aws.fetch(url, {
@@ -69,7 +73,8 @@ export async function putObjectText(env: Env, key: string, body: string, content
 	}
 }
 
-export async function deleteObject(env: Env, key: string): Promise<void> {
+export async function deleteObject(key: string): Promise<void> {
+	const env = getEnv();
 	const url = `${bucketRootUrl(env)}/${key.split('/').map(encodeURIComponent).join('/')}`;
 	const aws = clientForEnv(env);
 	const res = await aws.fetch(url, { method: 'DELETE' });

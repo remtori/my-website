@@ -1,18 +1,16 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-import { getEnv } from '@/lib/runtime';
 import { listObjectsWithPrefix } from '@/lib/s3';
 
 export const prerender = false;
 
-const env = getEnv();
 const err = Astro.url.searchParams.get('err');
 const deleted = Astro.url.searchParams.get('deleted');
 
 let keys: string[] = [];
 try {
-	keys = await listObjectsWithPrefix(env, 'mdx/');
+	keys = await listObjectsWithPrefix('mdx/');
 } catch {
 	keys = [];
 }

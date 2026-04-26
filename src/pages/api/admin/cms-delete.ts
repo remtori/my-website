@@ -1,11 +1,8 @@
 import type { APIRoute } from 'astro';
 
-import { getEnv } from '@/lib/runtime';
 import { deleteObject } from '@/lib/s3';
 
 export const POST: APIRoute = async ({ request }) => {
-	const env = getEnv();
-
 	let form: FormData;
 	try {
 		form = await request.formData();
@@ -20,7 +17,7 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 
 	try {
-		await deleteObject(env, key);
+		await deleteObject(key);
 	} catch {
 		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
 	}

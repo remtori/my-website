@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 
+import { getCache } from '@/lib/runtime';
+
 function cacheablePublicRequestForUrl(fullUrl: string): Request {
 	const u = new URL(fullUrl);
 	u.hash = '';
@@ -28,7 +30,7 @@ export const POST: APIRoute = async ({ request }) => {
 	for (const line of lines) {
 		const absolute = line.startsWith('http') ? line : `${origin}${line.startsWith('/') ? '' : '/'}${line}`;
 		try {
-			const ok = await caches.default.delete(cacheablePublicRequestForUrl(absolute));
+			const ok = await getCache().delete(cacheablePublicRequestForUrl(absolute));
 			if (ok) {
 				deleted++;
 			}

@@ -1,7 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-import { getEnv } from '@/lib/runtime';
 import { getObjectText } from '@/lib/s3';
 
 export const prerender = false;
@@ -13,10 +12,9 @@ if (!key || key.includes('..') || !key.startsWith('mdx/')) {
 	return Astro.redirect('/admin/cms', 302);
 }
 
-const env = getEnv();
 let content = '';
 try {
-	content = await getObjectText(env, key);
+	content = await getObjectText(key);
 } catch {
 	return Astro.redirect('/admin/cms?err=1', 302);
 }

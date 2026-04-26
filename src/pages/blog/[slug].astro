@@ -2,7 +2,6 @@
 import Layout from '@/layouts/Layout.astro';
 import { splitFrontmatter } from '@/lib/frontmatter';
 import { markdownToHtml } from '@/lib/markdown';
-import { getEnv } from '@/lib/runtime';
 import { getObjectText, postKeyFromSlug } from '@/lib/s3';
 
 export const prerender = false;
@@ -12,10 +11,9 @@ if (!slug) {
 	return Astro.redirect('/blog', 302);
 }
 
-const env = getEnv();
 let raw: string;
 try {
-	raw = await getObjectText(env, postKeyFromSlug(slug));
+	raw = await getObjectText(postKeyFromSlug(slug));
 } catch {
 	return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }

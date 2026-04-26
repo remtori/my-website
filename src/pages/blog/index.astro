@@ -1,17 +1,15 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { splitFrontmatter } from '@/lib/frontmatter';
-import { getEnv } from '@/lib/runtime';
 import { getObjectText, listPostKeys, slugFromPostKey } from '@/lib/s3';
 
 export const prerender = false;
 
-const env = getEnv();
-const keys = await listPostKeys(env);
+const keys = await listPostKeys();
 
 const items = await Promise.all(
 	keys.map(async (key) => {
-		const raw = await getObjectText(env, key);
+		const raw = await getObjectText(key);
 		const { data } = splitFrontmatter(raw);
 		const slug = slugFromPostKey(key);
 		return {

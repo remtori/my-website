@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'astro';
 
-import { getEnv } from '@/lib/runtime';
+import { getCache, getEnv } from '@/lib/runtime';
 import { getSessionCookieFromRequest, verifySessionValue } from '@/lib/session';
 
 function cacheablePublicRequest(req: Request): Request {
@@ -34,8 +34,7 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
 	if (isPublicCacheableGet(url, context.request.method)) {
 		const cacheReq = cacheablePublicRequest(context.request);
-		const hit = await caches.default.match(cacheReq);
-		console.log('isPublicCacheableGet', url.href, hit ? 'hit' : 'miss');
+		const hit = await getCache().match(cacheReq);
 		if (hit) {
 			return hit;
 		}
@@ -60,8 +59,7 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
 	if (isPublicCacheableGet(url, context.request.method) && response.ok) {
 		const cacheReq = cacheablePublicRequest(context.request);
-		await caches.default.put(cacheReq, response.clone());
-		console.log('cached', url.href);
+		await getCache().put(cacheReq, response.clone());
 	}
 
 	return response;

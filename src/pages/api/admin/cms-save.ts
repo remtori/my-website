@@ -1,11 +1,8 @@
 import type { APIRoute } from 'astro';
 
-import { getEnv } from '@/lib/runtime';
 import { putObjectText } from '@/lib/s3';
 
 export const POST: APIRoute = async ({ request }) => {
-	const env = getEnv();
-
 	let form: FormData;
 	try {
 		form = await request.formData();
@@ -21,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 
 	try {
-		await putObjectText(env, key, content, 'text/mdx; charset=utf-8');
+		await putObjectText(key, content, 'text/mdx; charset=utf-8');
 	} catch {
 		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
 	}
