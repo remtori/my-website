@@ -1,0 +1,7 @@
+# Copy to .dev.vars (gitignored) for local Wrangler / Astro dev
+ADMIN_PASSWORD=change-me
+SESSION_SECRET=use-a-long-random-string-at-least-32-bytes
+S3_ENDPOINT=https://your-s3-compatible-host
+S3_BUCKET=your-bucket
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=

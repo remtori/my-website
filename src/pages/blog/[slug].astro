@@ -1,0 +1,39 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { splitFrontmatter } from '@/lib/frontmatter';
+import { markdownToHtml } from '@/lib/markdown';
+import { getEnv } from '@/lib/runtime';
+import { getObjectText, postKeyFromSlug } from '@/lib/s3';
+
+export const prerender = false;
+
+const slug = Astro.params.slug;
+if (!slug) {
+	return Astro.redirect('/blog', 302);
+}
+
+const env = getEnv();
+let raw: string;
+try {
+	raw = await getObjectText(env, postKeyFromSlug(slug));
+} catch {
+	return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
+const { data, content } = splitFrontmatter(raw);
+const html = await markdownToHtml(content);
+const title = data.title ?? slug;
+---
+
+<Layout {title}>
+	<article class="space-y-6">
+		<header class="space-y-2 border-b border-zinc-800 pb-6">
+			<h1 class="text-3xl font-bold tracking-tight text-white">{title}</h1>
+			{data.date ? <p class="text-sm text-zinc-500">{data.date}</p> : null}
+		</header>
+		<div
+			class="markdown-body space-y-4 leading-relaxed text-zinc-300 [&_a]:text-amber-400 [&_a]:underline [&_code]:rounded [&_code]:bg-zinc-900 [&_code]:px-1 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-white [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-zinc-900 [&_pre]:p-4"
+			set:html={html}
+		/>
+	</article>
+</Layout>

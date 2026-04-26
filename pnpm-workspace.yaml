@@ -1,6 +1,0 @@
-packages:
-  - "packages/*"
-
-injectWorkspacePackages: true
-allowBuilds:
-  esbuild: true

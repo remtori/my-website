@@ -1,0 +1,28 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = false;
+
+const err = Astro.url.searchParams.get('err');
+---
+
+<Layout title="Admin login">
+	<h1 class="text-2xl font-bold text-white">Admin</h1>
+	<p class="mt-2 text-zinc-400">Sign in with the site password.</p>
+
+	{err ? <p class="mt-4 text-sm text-red-400">Invalid password.</p> : null}
+
+	<form method="POST" action="/api/admin/login" class="mt-8 max-w-sm space-y-4">
+		<label class="block text-sm text-zinc-300">
+			Password
+			<input
+				type="password"
+				name="password"
+				required
+				autocomplete="current-password"
+				class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-white outline-none focus:border-amber-500"
+			/>
+		</label>
+		<button type="submit" class="rounded-md bg-amber-500 px-4 py-2 font-medium text-zinc-950 hover:bg-amber-400"> Sign in </button>
+	</form>
+</Layout>

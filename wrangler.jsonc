@@ -1,0 +1,21 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "my-website",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"compatibility_date": "2026-04-26",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
+			"id": "156680054331426aafc6ed962c7cd944",
+			"preview_id": "f5ea68c1f79843f0b8d88acca7520804"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}

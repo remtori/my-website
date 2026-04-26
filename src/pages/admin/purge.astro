@@ -1,0 +1,34 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = false;
+
+const done = Astro.url.searchParams.get('done');
+const err = Astro.url.searchParams.get('err');
+---
+
+<Layout title="Purge cache">
+	<h1 class="text-2xl font-bold text-white">Purge edge cache</h1>
+	<p class="mt-2 text-zinc-400">
+		Enter paths (e.g. <code class="text-amber-400">/blog</code>) or full URLs, one per line. Uses the same cache keys as public pages (GET, no cookies).
+	</p>
+
+	{done !== null ? <p class="mt-4 text-sm text-green-400">Removed {done} cache entries (best-effort; false = miss or not stored).</p> : null}
+	{err ? <p class="mt-4 text-sm text-red-400">Could not read form.</p> : null}
+
+	<form method="POST" action="/api/admin/purge" class="mt-8 space-y-4">
+		<label class="block text-sm text-zinc-300">
+			URLs / paths
+			<textarea
+				name="urls"
+				rows={10}
+				placeholder={'/blog\n/blog/my-post'}
+				class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 font-mono text-sm text-white outline-none focus:border-amber-500"
+			/>
+		</label>
+		<button type="submit" class="rounded-md bg-amber-500 px-4 py-2 font-medium text-zinc-950 hover:bg-amber-400"> Purge </button>
+	</form>
+	<p class="mt-8 text-sm text-zinc-500">
+		<a href="/admin" class="text-amber-400 hover:underline">← Admin home</a>
+	</p>
+</Layout>

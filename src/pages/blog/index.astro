@@ -1,0 +1,46 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { splitFrontmatter } from '@/lib/frontmatter';
+import { getEnv } from '@/lib/runtime';
+import { getObjectText, listPostKeys, slugFromPostKey } from '@/lib/s3';
+
+export const prerender = false;
+
+const env = getEnv();
+const keys = await listPostKeys(env);
+
+const items = await Promise.all(
+	keys.map(async (key) => {
+		const raw = await getObjectText(env, key);
+		const { data } = splitFrontmatter(raw);
+		const slug = slugFromPostKey(key);
+		return {
+			slug,
+			title: data.title ?? slug,
+			date: data.date ?? '',
+		};
+	}),
+);
+
+items.sort((a, b) => b.date.localeCompare(a.date));
+---
+
+<Layout title="Blog">
+	<h1 class="text-3xl font-bold text-white">Blog</h1>
+	<ul class="mt-8 space-y-4">
+		{
+			items.length === 0 ? (
+				<p class="text-zinc-500">No posts yet. Add `.mdx` files under `mdx/posts/` in S3, then open a post URL.</p>
+			) : (
+				items.map((p) => (
+					<li class="border-b border-zinc-800 pb-4">
+						<a href={`/blog/${p.slug}`} class="text-lg text-amber-400 hover:underline" transition:animate="none">
+							{p.title}
+						</a>
+						{p.date ? <p class="text-sm text-zinc-500">{p.date}</p> : null}
+					</li>
+				))
+			)
+		}
+	</ul>
+</Layout>

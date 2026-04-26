@@ -1,0 +1,13 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = false;
+---
+
+<Layout title="Home">
+	<h1 class="text-3xl font-bold tracking-tight text-white">Welcome</h1>
+	<p class="mt-4 text-lg text-zinc-400">Static pages and blog posts are cached at the edge until you purge them from the admin.</p>
+	<ul class="mt-8 list-inside list-disc space-y-2 text-zinc-300">
+		<li><a class="text-amber-400 hover:underline" href="/blog">Read the blog</a></li>
+	</ul>
+</Layout>

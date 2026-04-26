@@ -1,0 +1,42 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+import { getEnv } from '@/lib/runtime';
+import { getObjectText } from '@/lib/s3';
+
+export const prerender = false;
+
+const key = Astro.url.searchParams.get('key');
+const saved = Astro.url.searchParams.get('saved');
+
+if (!key || key.includes('..') || !key.startsWith('mdx/')) {
+	return Astro.redirect('/admin/cms', 302);
+}
+
+const env = getEnv();
+let content = '';
+try {
+	content = await getObjectText(env, key);
+} catch {
+	return Astro.redirect('/admin/cms?err=1', 302);
+}
+---
+
+<Layout title="Edit MDX">
+	<h1 class="text-2xl font-bold text-white">Edit</h1>
+	<p class="mt-2 font-mono text-sm text-zinc-500">{key}</p>
+
+	{saved ? <p class="mt-4 text-sm text-green-400">Saved to S3. Purge cache for the public URL if needed.</p> : null}
+
+	<form method="POST" action="/api/admin/cms-save" class="mt-8 space-y-4">
+		<input type="hidden" name="key" value={key} />
+		<label class="block text-sm text-zinc-300">
+			Content
+			<textarea name="content" required rows={22} class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 font-mono text-sm text-white outline-none focus:border-amber-500">{content}</textarea>
+		</label>
+		<div class="flex flex-wrap gap-4">
+			<button type="submit" class="rounded-md bg-amber-500 px-4 py-2 font-medium text-zinc-950 hover:bg-amber-400"> Save </button>
+			<a href="/admin/cms" class="self-center text-sm text-zinc-500 hover:text-zinc-300">← Back to list</a>
+		</div>
+	</form>
+</Layout>

@@ -1,0 +1,38 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '@/styles/global.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = 'Personal site' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<title>{title}</title>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+		<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<ClientRouter />
+	</head>
+	<body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+		<header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur">
+			<nav class="mx-auto flex max-w-3xl flex-wrap items-center gap-4 px-4 py-4 text-sm">
+				<a href="/" class="font-semibold text-amber-400 transition hover:text-amber-300" transition:animate="none"> Home </a>
+				<a href="/blog" class="text-zinc-300 transition hover:text-white" transition:animate="none"> Blog </a>
+			</nav>
+		</header>
+		<main class="mx-auto max-w-3xl px-4 py-10">
+			<slot />
+		</main>
+	</body>
+</html>
