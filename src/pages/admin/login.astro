@@ -4,17 +4,27 @@ import Layout from '@/layouts/Layout.astro';
 export const prerender = false;
 
 const err = Astro.url.searchParams.get('err');
+const retrySec = Astro.url.searchParams.get('retry');
 ---
 
-<Layout title="Admin login">
+<Layout title="Admin login" wide={true}>
 	<div class="animate-fade-in-up flex min-h-[65vh] items-center justify-center">
-		<div class="w-full max-w-sm border-2 border-border bg-bg-surface p-8 shadow-[4px_4px_0px_#1c2130]">
+		<div class="w-full max-w-sm border border-border bg-bg-surface p-8">
 			<div class="space-y-2 text-center">
 				<h1 class="font-display text-2xl font-bold text-text-primary">Admin</h1>
 				<p class="text-sm text-text-muted">Sign in with the site password.</p>
 			</div>
 
-			{err ? <p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm font-mono text-error">Invalid password.</p> : null}
+			{err === 'rate' ? (
+				<p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm text-error">
+					Too many sign-in attempts.
+					{retrySec ? (
+						<span class="mt-1 block font-mono text-xs text-text-muted">Try again in about {retrySec}s.</span>
+					) : null}
+				</p>
+			) : err ? (
+				<p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm font-mono text-error">Invalid password.</p>
+			) : null}
 
 			<form method="POST" action="/api/admin/login" class="mt-6 space-y-5">
 				<label class="block text-sm text-text-secondary">
@@ -24,12 +34,12 @@ const err = Astro.url.searchParams.get('err');
 						name="password"
 						required
 						autocomplete="current-password"
-						class="w-full border-2 border-border bg-bg-base px-4 py-3 font-mono text-text-primary outline-none transition focus:border-accent"
+						class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-text-primary outline-none transition focus:border-accent"
 					/>
 				</label>
 				<button
 					type="submit"
-					class="w-full bg-accent px-4 py-3 font-display font-bold text-bg-base shadow-[4px_4px_0px_#b0882e] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#b0882e]"
+					class="w-full bg-accent px-4 py-3 font-display font-bold text-bg-base transition hover:bg-accent-light"
 				>
 					Sign in
 				</button>
