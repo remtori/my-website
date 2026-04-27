@@ -1,0 +1,129 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import { getObjectText } from '@/lib/s3';
+
+export const prerender = false;
+
+const key = Astro.url.searchParams.get('key');
+const saved = Astro.url.searchParams.get('saved');
+
+let isNew = !key;
+let content = '';
+
+if (key) {
+	if (key.includes('..') || !key.startsWith('mdx/')) {
+		return Astro.redirect('/admin?err=1', 302);
+	}
+	try {
+		content = await getObjectText(key);
+	} catch {
+		return Astro.redirect('/admin?err=1', 302);
+	}
+}
+---
+
+<AdminLayout title={isNew ? 'New MDX' : 'Edit MDX'}>
+	<PageHeader title={isNew ? 'New MDX object' : 'Edit'}>
+		{isNew ? (
+			<p slot="subtitle" class="text-sm text-text-secondary">Create a new post or page in S3.</p>
+		) : (
+			<p class="font-mono text-sm text-text-muted">{key}</p>
+		)}
+	</PageHeader>
+
+	{saved ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Saved to S3. Purge cache for the public URL if needed.</p> : null}
+
+	<form method="POST" action="/api/admin/cms-save" class="animate-fade-in-up animate-delay-100 mt-8 space-y-5">
+		{!isNew ? <input type="hidden" name="key" value={key} /> : null}
+
+		{isNew ? (
+			<>
+				<label class="block text-sm text-text-secondary">
+					<span class="mb-1.5 block font-medium">Type</span>
+					<select
+						name="type"
+						id="type-select"
+						class="w-full border border-border bg-bg-base px-4 py-3 text-sm text-text-primary outline-none transition focus:border-accent"
+					>
+						<option value="blog">Blog post</option>
+						<option value="page">Page</option>
+					</select>
+				</label>
+
+				<label class="block text-sm text-text-secondary">
+					<span class="mb-1.5 block font-medium">Title</span>
+					<input
+						name="title"
+						id="title-input"
+						required
+						placeholder="My new post"
+						class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
+					/>
+				</label>
+
+				<p class="font-mono text-xs text-text-muted">
+					Key will be: <code id="derived-key" class="bg-bg-subtle px-2 py-0.5 font-mono text-accent">mdx/blogs/{new Date().toISOString().slice(0, 10)}-my-new-post.mdx</code>
+				</p>
+			</>
+		) : null}
+
+		<label class="block text-sm text-text-secondary">
+			<span class="mb-1.5 block font-medium">Content</span>
+			<textarea
+				name="content"
+				required
+				rows={isNew ? 18 : 22}
+				class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
+			>{
+				isNew
+					? `---\ntitle: New post\ndate: ${new Date().toISOString().slice(0, 10)}\n---\n\nHello from **markdown**.`
+					: content
+			}</textarea>
+		</label>
+
+		<div class="flex flex-wrap items-center gap-4 pt-1">
+			<button
+				type="submit"
+				class="bg-accent px-6 py-3 font-display font-bold text-bg-base transition hover:bg-accent-light"
+			>
+				Save
+			</button>
+			<a href="/admin" class="font-mono text-xs text-text-muted underline underline-offset-4 transition hover:text-text-secondary">&larr; Back to list</a>
+		</div>
+	</form>
+
+	{isNew ? (
+		<script is:inline>
+			(function () {
+				const typeSelect = document.getElementById('type-select');
+				const titleInput = document.getElementById('title-input');
+				const keyDisplay = document.getElementById('derived-key');
+
+				function slugify(str) {
+					return str
+						.toLowerCase()
+						.trim()
+						.replace(/[^a-z0-9]+/g, '-')
+						.replace(/^-+|-+$/g, '');
+				}
+
+				function updateKey() {
+					const title = titleInput.value || 'my-new-post';
+					const slug = slugify(title);
+					const type = typeSelect.value;
+					if (type === 'blog') {
+						const date = new Date().toISOString().slice(0, 10);
+						keyDisplay.textContent = 'mdx/blogs/' + date + '-' + slug + '.mdx';
+					} else {
+						keyDisplay.textContent = 'mdx/' + slug + '.mdx';
+					}
+				}
+
+				typeSelect.addEventListener('change', updateKey);
+				titleInput.addEventListener('input', updateKey);
+				updateKey();
+			})();
+		</script>
+	) : null}
+</AdminLayout>

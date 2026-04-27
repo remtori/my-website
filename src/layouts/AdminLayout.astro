@@ -1,0 +1,75 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<Layout title={title} description={description} wide={true}>
+	<div class="mx-auto max-w-6xl px-4 py-12 lg:py-20">
+		<div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+			<!-- Left sidebar -->
+			<div class="animate-slide-in-left-soft space-y-10 lg:col-span-4">
+				<div class="space-y-5">
+					<h1 class="font-display text-5xl font-bold tracking-tighter text-text-primary sm:text-6xl">
+						ADMIN
+					</h1>
+					<p class="font-mono text-sm text-accent">// content management</p>
+				</div>
+
+				<nav class="space-y-3 font-mono text-sm">
+					<a
+						href="/admin"
+						class:list={[
+							'group flex items-center gap-2 transition hover:translate-x-1 hover:text-accent',
+							pathname === '/admin' || pathname.startsWith('/admin/edit')
+								? 'text-accent'
+								: 'text-text-secondary',
+						]}
+						transition:animate="none"
+					>
+						<span class="text-text-muted">$</span>
+						<span>cd</span>
+						<span
+							class:list={[
+								pathname === '/admin' || pathname.startsWith('/admin/edit')
+									? 'text-accent-light'
+									: 'text-accent transition group-hover:text-accent-light',
+							]}
+						>
+							~/dashboard
+						</span>
+					</a>
+					<a
+						href="/"
+						class="group flex items-center gap-2 text-text-secondary transition hover:translate-x-1 hover:text-accent"
+						transition:animate="none"
+					>
+						<span class="text-text-muted">$</span>
+						<span>cd</span>
+						<span class="text-accent transition group-hover:text-accent-light">~/home</span>
+					</a>
+				</nav>
+
+				<form method="POST" action="/api/admin/logout">
+					<button
+						type="submit"
+						class="font-mono text-xs text-white underline underline-offset-4 transition hover:text-text-secondary"
+					>
+						Sign out
+					</button>
+				</form>
+			</div>
+
+			<!-- Right content -->
+			<div class="space-y-10 lg:col-span-8">
+				<slot />
+			</div>
+		</div>
+	</div>
+</Layout>

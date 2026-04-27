@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 
+import { getPostRelatedCacheUrls, purgeCacheUrls } from '@/lib/cache';
 import { upsertFileIndexEntry } from '@/lib/file-index';
+import { getCache } from '@/lib/runtime';
 import { putObjectText } from '@/lib/s3';
 
 function slugify(str: string): string {
@@ -16,7 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
 	try {
 		form = await request.formData();
 	} catch {
-		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
+		return Response.redirect(new URL('/admin?err=1', request.url), 302);
 	}
 
 	let key = String(form.get('key') ?? '').trim();
@@ -27,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
 	// Derive key from title/type if not provided (new object flow)
 	if (!key) {
 		if (!title) {
-			return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
+			return Response.redirect(new URL('/admin?err=1', request.url), 302);
 		}
 		const slug = slugify(title);
 		if (type === 'blog') {
@@ -39,7 +41,7 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 
 	if (!key.startsWith('mdx/') || key.includes('..')) {
-		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
+		return Response.redirect(new URL('/admin?err=1', request.url), 302);
 	}
 
 	// Collision check: if this looks like a new object (no pre-existing key in form),
@@ -49,18 +51,23 @@ export const POST: APIRoute = async ({ request }) => {
 		const { getFileIndex } = await import('@/lib/file-index');
 		const index = await getFileIndex();
 		if (index.some((e) => e.key === key)) {
-			return Response.redirect(new URL('/admin/cms?collision=1', request.url), 302);
+			return Response.redirect(new URL('/admin?collision=1', request.url), 302);
 		}
 	}
 
 	try {
 		await putObjectText(key, content, 'text/mdx; charset=utf-8');
 	} catch {
-		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
+		return Response.redirect(new URL('/admin?err=1', request.url), 302);
 	}
 
 	// Write-through to KV cache (silent failure)
 	await upsertFileIndexEntry(key, content);
 
-	return Response.redirect(new URL(`/admin/cms/edit?key=${encodeURIComponent(key)}&saved=1`, request.url), 302);
+	// Purge affected pages from edge cache
+	const origin = new URL(request.url).origin;
+	const urls = await getPostRelatedCacheUrls(origin, key);
+	await purgeCacheUrls(getCache(), urls);
+
+	return Response.redirect(new URL(`/admin/edit?key=${encodeURIComponent(key)}&saved=1`, request.url), 302);
 };

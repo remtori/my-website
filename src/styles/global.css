@@ -29,7 +29,6 @@
 	--font-mono: "JetBrains Mono", monospace;
 }
 
-
 @keyframes fade-in-up {
 	from {
 		opacity: 0;
@@ -141,4 +140,3 @@
 ::-webkit-scrollbar-thumb:hover {
 	background: #283040;
 }
-

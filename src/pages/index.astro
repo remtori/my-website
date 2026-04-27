@@ -60,9 +60,6 @@ const buildDate = new Date().toISOString().slice(0, 10);
 						<span class="text-text-muted">$</span>
 						<span>cd</span>
 						<span class="text-accent transition group-hover:text-accent-light">~/about</span>
-						{!hasAbout && (
-							<span class="ml-2 font-mono text-[10px] text-text-muted uppercase">wip</span>
-						)}
 					</a>
 					<a
 						href="/tools"
@@ -72,6 +69,15 @@ const buildDate = new Date().toISOString().slice(0, 10);
 						<span class="text-text-muted">$</span>
 						<span>cd</span>
 						<span class="text-accent transition group-hover:text-accent-light">~/tools</span>
+					</a>
+					<a
+						href="/admin"
+						class="group flex items-center gap-2 text-text-secondary transition hover:translate-x-1 hover:text-accent"
+						transition:animate="none"
+					>
+						<span class="text-text-muted">$</span>
+						<span>cd</span>
+						<span class="text-accent transition group-hover:text-accent-light">~/admin</span>
 					</a>
 				</nav>
 			</div>
