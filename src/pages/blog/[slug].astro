@@ -1,8 +1,8 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { splitFrontmatter } from '@/lib/frontmatter';
-import { markdownToHtml } from '@/lib/markdown';
-import { getObjectText, postKeyFromSlug } from '@/lib/s3';
+import MdBody from '@/components/MdBody.astro';
+import { loadMdFromS3 } from '@/lib/md-content';
+import { postKeyFromSlug } from '@/lib/s3';
 
 export const prerender = false;
 
@@ -11,16 +11,11 @@ if (!slug) {
 	return Astro.redirect('/blog', 302);
 }
 
-let raw: string;
-try {
-	raw = await getObjectText(postKeyFromSlug(slug));
-} catch {
+const { html, title, date, found } = await loadMdFromS3(postKeyFromSlug(slug));
+
+if (!found) {
 	return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
-
-const { data, content } = splitFrontmatter(raw);
-const html = await markdownToHtml(content);
-const title = data.title ?? slug;
 ---
 
 <Layout {title}>
@@ -28,11 +23,8 @@ const title = data.title ?? slug;
 		<header class="space-y-3">
 			<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary sm:text-5xl">{title}</h1>
 			<div class="h-1 w-16 bg-accent"></div>
-			{data.date ? <p class="font-mono text-sm text-text-muted">{data.date}</p> : null}
+			{date ? <p class="font-mono text-sm text-text-muted">{date}</p> : null}
 		</header>
-		<div
-			class="markdown-body space-y-5 leading-relaxed text-text-secondary [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition [&_a:hover]:text-accent-light [&_code]:bg-bg-subtle [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-accent [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-display [&_h2]:font-semibold [&_h2]:text-text-primary [&_h3]:mt-8 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-text-primary [&_h4]:text-text-primary [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-border [&_pre]:bg-bg-muted [&_pre]:p-5 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:text-text-secondary [&_blockquote]:border-l-4 [&_blockquote]:border-accent [&_blockquote]:bg-bg-muted/50 [&_blockquote]:py-3 [&_blockquote]:pl-5 [&_blockquote]:pr-4 [&_blockquote]:italic [&_blockquote]:text-text-secondary [&_ul]:list-inside [&_ul]:list-disc [&_ul]:space-y-1 [&_ol]:list-inside [&_ol]:list-decimal [&_ol]:space-y-1 [&_hr]:border-border [&_strong]:text-text-primary [&_strong]:font-semibold"
-			set:html={html}
-		/>
+		<MdBody {html} />
 	</article>
 </Layout>

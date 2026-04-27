@@ -1,0 +1,22 @@
+---
+interface Props {
+	href: string;
+	title: string;
+	date?: string;
+	dataAttrs?: Record<string, string>;
+}
+
+const { href, title, date, dataAttrs } = Astro.props;
+---
+
+<li
+	class="blog-row border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent hover:bg-bg-surface/50"
+	{...dataAttrs}
+>
+	<a href={href} class="group block" transition:animate="none">
+		<h2 class="font-display text-lg font-semibold text-accent transition group-hover:text-accent-light">
+			{title}
+		</h2>
+		{date ? <p class="mt-1.5 font-mono text-xs text-text-muted">{date}</p> : null}
+	</a>
+</li>

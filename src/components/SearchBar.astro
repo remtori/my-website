@@ -1,0 +1,18 @@
+---
+interface Props {
+	id: string;
+	placeholder: string;
+}
+
+const { id, placeholder } = Astro.props;
+---
+
+<div class="group flex items-center gap-3 border-b border-border py-3 transition focus-within:border-accent">
+	<span class="font-mono text-sm text-accent">❯</span>
+	<input
+		type="text"
+		id={id}
+		placeholder={placeholder}
+		class="w-full bg-transparent font-mono text-sm text-text-primary focus:outline-hidden outline-none placeholder:text-text-muted"
+	/>
+</div>

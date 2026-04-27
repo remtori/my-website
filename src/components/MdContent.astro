@@ -1,0 +1,26 @@
+---
+import { loadMdFromS3 } from '@/lib/md-content';
+import MdBody from './MdBody.astro';
+
+interface Props {
+	s3Path: string;
+}
+
+const { s3Path } = Astro.props;
+const { html, title, date, found } = await loadMdFromS3(s3Path);
+---
+
+{
+	found ? (
+		<article class="animate-fade-in-up space-y-8">
+			<header class="space-y-3">
+				<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary sm:text-5xl">{title}</h1>
+				<div class="h-1 w-16 bg-accent" />
+				{date ? <p class="font-mono text-sm text-text-muted">{date}</p> : null}
+			</header>
+			<MdBody {html} />
+		</article>
+	) : (
+		<slot name="fallback" />
+	)
+}

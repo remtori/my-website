@@ -1,13 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import PostCard from '@/components/PostCard.astro';
+import SearchBar from '@/components/SearchBar.astro';
 import { getFileIndex } from '@/lib/file-index';
-import { getEnv } from '@/lib/runtime';
 import { POSTS_PREFIX, slugFromPostKey } from '@/lib/s3';
 
 export const prerender = false;
 
-const env = getEnv();
-const index = await getFileIndex(env);
+const index = await getFileIndex();
 
 const items = index
 	.filter((e) => e.key.startsWith(POSTS_PREFIX) && e.key.endsWith('.mdx'))
@@ -21,38 +22,54 @@ items.sort((a, b) => b.date.localeCompare(a.date));
 ---
 
 <Layout title="Blog">
-	<div class="animate-fade-in-up space-y-3">
-		<h1 class="font-display text-5xl font-bold tracking-tight text-text-primary sm:text-6xl">Blog</h1>
-		<div class="h-1 w-16 bg-accent"></div>
-		<p class="text-text-secondary font-body">Thoughts, notes, and write-ups.</p>
+	<PageHeader title="Blog" subtitle="Thoughts, notes, and write-ups." size="lg" />
+
+	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
+		<SearchBar id="blog-search" placeholder="filter posts..." />
+
+		<ul id="blog-list" class="space-y-0">
+			{
+				items.length === 0 ? (
+					<li class="border-2 border-border bg-bg-surface p-6 shadow-[3px_3px_0px_#1c2130]">
+						<p class="text-sm text-text-secondary">
+							No posts yet. Add <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">.mdx</code> files under <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">mdx/blogs/</code> in S3, then open a post URL.
+						</p>
+					</li>
+				) : (
+					items.map((p) => (
+						<PostCard
+							href={`/blog/${p.slug}`}
+							title={p.title}
+							date={p.date || undefined}
+							dataAttrs={{ 'data-title': p.title }}
+						/>
+					))
+				)
+			}
+			<li id="blog-empty" class="hidden border-l-2 border-border py-5 pl-4">
+				<p class="font-mono text-xs text-text-muted">// no posts matched your query</p>
+			</li>
+		</ul>
 	</div>
 
-	<ul class="mt-12 space-y-0">
-		{
-			items.length === 0 ? (
-				<li class="animate-fade-in-up animate-delay-100 border-2 border-border bg-bg-surface p-6 shadow-[3px_3px_0px_#1c2130]">
-					<p class="text-text-secondary text-sm">
-						No posts yet. Add <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">.mdx</code> files under <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">mdx/blogs/</code> in S3, then open a post URL.
-					</p>
-				</li>
-			) : (
-				items.map((p, i) => (
-					<li class={`animate-fade-in-up border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent hover:bg-bg-surface/50 ${i === 0 ? 'animate-delay-100' : i === 1 ? 'animate-delay-200' : i === 2 ? 'animate-delay-300' : 'animate-delay-400'}`}>
-						<a
-							href={`/blog/${p.slug}`}
-							class="group block"
-							transition:animate="none"
-						>
-							<h2 class="font-display text-lg font-semibold text-accent transition group-hover:text-accent-light">
-								{p.title}
-							</h2>
-							{p.date ? (
-								<p class="mt-1.5 font-mono text-xs text-text-muted">{p.date}</p>
-							) : null}
-						</a>
-					</li>
-				))
-			)
-		}
-	</ul>
+	<script is:inline>
+		(function () {
+			const input = document.getElementById('blog-search');
+			const rows = document.querySelectorAll('.blog-row');
+			const empty = document.getElementById('blog-empty');
+			if (!input || !empty) return;
+
+			input.addEventListener('input', function () {
+				const q = this.value.toLowerCase().trim();
+				let visible = 0;
+				rows.forEach(function (row) {
+					const title = (row.getAttribute('data-title') || '').toLowerCase();
+					const match = title.includes(q);
+					row.style.display = match ? '' : 'none';
+					if (match) visible++;
+				});
+				empty.style.display = visible === 0 ? '' : 'none';
+			});
+		})();
+	</script>
 </Layout>

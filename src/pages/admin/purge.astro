@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import PageHeader from '@/components/PageHeader.astro';
 
 export const prerender = false;
 
@@ -8,13 +9,11 @@ const err = Astro.url.searchParams.get('err');
 ---
 
 <Layout title="Purge cache">
-	<div class="animate-fade-in-up space-y-3">
-		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Purge edge cache</h1>
-		<div class="h-1 w-16 bg-accent"></div>
-		<p class="text-text-secondary text-sm">
+	<PageHeader title="Purge edge cache">
+		<p slot="subtitle" class="text-sm text-text-secondary">
 			Enter paths (e.g. <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">/blog</code>) or full URLs, one per line. Uses the same cache keys as public pages (GET, no cookies).
 		</p>
-	</div>
+	</PageHeader>
 
 	{done !== null ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Removed {done} cache entries (best-effort; false = miss or not stored).</p> : null}
 	{err ? <p class="mt-5 border border-error/30 bg-error/5 px-4 py-3 font-mono text-sm text-error">Could not read form.</p> : null}

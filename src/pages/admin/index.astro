@@ -1,15 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import PageHeader from '@/components/PageHeader.astro';
 
 export const prerender = false;
 ---
 
 <Layout title="Admin">
-	<div class="animate-fade-in-up space-y-3">
-		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Dashboard</h1>
-		<div class="h-1 w-16 bg-accent"></div>
-		<p class="text-text-secondary font-mono text-sm">Manage content and cache.</p>
-	</div>
+	<PageHeader title="Dashboard">
+		<p slot="subtitle" class="font-mono text-sm text-text-secondary">Manage content and cache.</p>
+	</PageHeader>
 
 	<div class="mt-10 grid gap-4 sm:grid-cols-2">
 		<a

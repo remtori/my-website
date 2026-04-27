@@ -1,0 +1,14 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import MdContent from '@/components/MdContent.astro';
+---
+
+<Layout title="About">
+	<MdContent s3Path="mdx/about.mdx">
+		<div slot="fallback" class="animate-fade-in-up space-y-6">
+			<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary sm:text-5xl">About</h1>
+			<div class="h-1 w-16 bg-accent" />
+			<p class="font-mono text-sm text-text-secondary">// this page is still being written.</p>
+		</div>
+	</MdContent>
+</Layout>

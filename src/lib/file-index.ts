@@ -1,4 +1,5 @@
 import { splitFrontmatter } from './frontmatter';
+import { getEnv } from './runtime';
 import { getObjectText, listObjectsWithPrefix, POSTS_PREFIX } from './s3';
 
 const KV_KEY = 'file_index';
@@ -10,7 +11,8 @@ export type FileIndexEntry = {
 };
 
 /** Retrieve the cached file index from DATA KV. On miss, rebuild from S3. */
-export async function getFileIndex(env: Env): Promise<FileIndexEntry[]> {
+export async function getFileIndex(): Promise<FileIndexEntry[]> {
+	const env = getEnv();
 	const raw = await env.DATA.get(KV_KEY);
 	if (raw) {
 		try {
@@ -19,11 +21,12 @@ export async function getFileIndex(env: Env): Promise<FileIndexEntry[]> {
 			// fall through to rebuild
 		}
 	}
-	return rebuildFileIndex(env);
+	return rebuildFileIndex();
 }
 
 /** Rebuild the full file index by listing S3 and fetching frontmatter for posts. */
-export async function rebuildFileIndex(env: Env): Promise<FileIndexEntry[]> {
+export async function rebuildFileIndex(): Promise<FileIndexEntry[]> {
+	const env = getEnv();
 	const keys = await listObjectsWithPrefix('mdx/');
 	const entries: FileIndexEntry[] = [];
 
@@ -47,9 +50,10 @@ export async function rebuildFileIndex(env: Env): Promise<FileIndexEntry[]> {
 }
 
 /** Upsert a single entry in the cached index (used after CMS save). */
-export async function upsertFileIndexEntry(env: Env, key: string, content?: string): Promise<void> {
+export async function upsertFileIndexEntry(key: string, content?: string): Promise<void> {
+	const env = getEnv();
 	try {
-		const index = await getFileIndex(env);
+		const index = await getFileIndex();
 		const entry: FileIndexEntry = { key };
 
 		if (key.startsWith(POSTS_PREFIX) && key.endsWith('.mdx') && content !== undefined) {
@@ -72,9 +76,10 @@ export async function upsertFileIndexEntry(env: Env, key: string, content?: stri
 }
 
 /** Remove a single entry from the cached index (used after CMS delete). */
-export async function deleteFileIndexEntry(env: Env, key: string): Promise<void> {
+export async function deleteFileIndexEntry(key: string): Promise<void> {
+	const env = getEnv();
 	try {
-		const index = await getFileIndex(env);
+		const index = await getFileIndex();
 		const filtered = index.filter((e) => e.key !== key);
 		await env.DATA.put(KV_KEY, JSON.stringify(filtered));
 	} catch {

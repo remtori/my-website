@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import PageHeader from '@/components/PageHeader.astro';
 
 import { getObjectText } from '@/lib/s3';
 
@@ -21,11 +22,8 @@ try {
 ---
 
 <Layout title="Edit MDX">
-	<div class="animate-fade-in-up space-y-3">
-		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Edit</h1>
-		<div class="h-1 w-16 bg-accent"></div>
-		<p class="font-mono text-sm text-text-muted">{key}</p>
-	</div>
+	<PageHeader title="Edit" />
+	<p class="font-mono text-sm text-text-muted">{key}</p>
 
 	{saved ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Saved to S3. Purge cache for the public URL if needed.</p> : null}
 

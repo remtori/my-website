@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 
 import { upsertFileIndexEntry } from '@/lib/file-index';
-import { getEnv } from '@/lib/runtime';
 import { putObjectText } from '@/lib/s3';
 
 function slugify(str: string): string {
@@ -43,14 +42,12 @@ export const POST: APIRoute = async ({ request }) => {
 		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
 	}
 
-	const env = getEnv();
-
 	// Collision check: if this looks like a new object (no pre-existing key in form),
 	// verify it doesn't already exist in the index.
 	const isNew = !String(form.get('key') ?? '').trim();
 	if (isNew) {
 		const { getFileIndex } = await import('@/lib/file-index');
-		const index = await getFileIndex(env);
+		const index = await getFileIndex();
 		if (index.some((e) => e.key === key)) {
 			return Response.redirect(new URL('/admin/cms?collision=1', request.url), 302);
 		}
@@ -63,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 
 	// Write-through to KV cache (silent failure)
-	await upsertFileIndexEntry(env, key, content);
+	await upsertFileIndexEntry(key, content);
 
 	return Response.redirect(new URL(`/admin/cms/edit?key=${encodeURIComponent(key)}&saved=1`, request.url), 302);
 };

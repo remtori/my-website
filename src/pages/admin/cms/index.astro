@@ -1,8 +1,8 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import PageHeader from '@/components/PageHeader.astro';
 
 import { getFileIndex } from '@/lib/file-index';
-import { getEnv } from '@/lib/runtime';
 
 export const prerender = false;
 
@@ -10,19 +10,16 @@ const err = Astro.url.searchParams.get('err');
 const deleted = Astro.url.searchParams.get('deleted');
 const collision = Astro.url.searchParams.get('collision');
 
-const env = getEnv();
-const index = await getFileIndex(env);
+const index = await getFileIndex();
 const keys = index.map((e) => e.key).sort();
 ---
 
 <Layout title="CMS">
-	<div class="animate-fade-in-up space-y-3">
-		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Content</h1>
-		<div class="h-1 w-16 bg-accent"></div>
-		<p class="text-text-secondary text-sm">
+	<PageHeader title="Content">
+		<p slot="subtitle" class="text-sm text-text-secondary">
 			List, edit, or create objects under the <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">mdx/</code> prefix.
 		</p>
-	</div>
+	</PageHeader>
 
 	{err ? <p class="mt-5 border border-error/30 bg-error/5 px-4 py-3 font-mono text-sm text-error">Something went wrong (S3 or validation).</p> : null}
 	{deleted ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Object deleted.</p> : null}

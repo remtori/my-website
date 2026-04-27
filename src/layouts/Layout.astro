@@ -5,9 +5,10 @@ import '@/styles/global.css';
 interface Props {
 	title: string;
 	description?: string;
+	wide?: boolean;
 }
 
-const { title, description = 'Personal site' } = Astro.props;
+const { title, description = 'Personal site', wide = false } = Astro.props;
 const isAdmin = Astro.url.pathname.startsWith('/admin');
 ---
 
@@ -20,7 +21,7 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 		<meta name="theme-color" content="#0a0d12" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-title" content="Remtori" />
-		<title>{title}</title>
+		<title>Remtori - {title}</title>
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 		<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
 		<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
@@ -46,6 +47,9 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 				<a href="/blog" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
 					Blog
 				</a>
+				<a href="/tools" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
+					Tools
+				</a>
 				{isAdmin && (
 					<span class="border border-accent bg-accent/10 px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider text-accent">
 						Admin
@@ -53,7 +57,7 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 				)}
 			</nav>
 		</header>
-		<main class:list={["mx-auto max-w-3xl px-4 py-12", isAdmin && "border-l-2 border-accent/60 pl-5"]}>
+		<main class:list={["px-4 py-12", wide ? "mx-auto max-w-6xl" : "mx-auto max-w-3xl", isAdmin && !wide && "border-l-2 border-accent/60 pl-5"]}>
 			<slot />
 		</main>
 	</body>

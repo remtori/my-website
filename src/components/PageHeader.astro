@@ -1,0 +1,23 @@
+---
+interface Props {
+	title: string;
+	subtitle?: string;
+	size?: 'sm' | 'md' | 'lg';
+	class?: string;
+}
+
+const { title, subtitle, size = 'sm', class: className } = Astro.props;
+
+const sizeClass = {
+	sm: 'text-4xl',
+	md: 'text-4xl sm:text-5xl',
+	lg: 'text-5xl sm:text-6xl',
+}[size];
+---
+
+<div class:list={['animate-fade-in-up space-y-3', className]}>
+	<h1 class:list={['font-display font-bold tracking-tight text-text-primary', sizeClass]}>{title}</h1>
+	<div class="h-[1px] w-20 bg-accent mt-0"></div>
+	{subtitle ? <p class="text-text-secondary">{subtitle}</p> : null}
+	<slot name="subtitle" />
+</div>

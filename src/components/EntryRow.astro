@@ -1,0 +1,25 @@
+---
+interface Props {
+	href?: string;
+	prefix?: string;
+	badge?: string;
+	wrapperClass?: string;
+	dataAttrs?: Record<string, string>;
+}
+
+const { href, prefix, badge, wrapperClass, dataAttrs } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+	href={href}
+	class:list={['group flex items-baseline gap-3', wrapperClass]}
+	{...dataAttrs}
+	transition:animate={href ? 'none' : undefined}
+>
+	{prefix !== undefined && (
+		<span class="w-4 shrink-0 font-mono text-xs text-text-muted transition group-hover:text-accent">{prefix}</span>
+	)}
+	<slot />
+	{badge && <span class="shrink-0 font-mono text-[10px] uppercase text-text-muted">{badge}</span>}
+</Tag>

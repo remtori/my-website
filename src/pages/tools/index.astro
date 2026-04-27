@@ -1,0 +1,75 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import EntryRow from '@/components/EntryRow.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import SearchBar from '@/components/SearchBar.astro';
+import { tools } from '@/lib/tools';
+
+export const prerender = false;
+---
+
+<Layout title="Tools">
+	<PageHeader
+		title="Tools"
+		subtitle="Browser-only utilities. No server, no data sent anywhere."
+		size="lg"
+	/>
+
+	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
+		<SearchBar id="tool-search" placeholder="filter utilities..." />
+
+		<ul id="tool-list" class="space-y-0">
+			{
+				tools.map((tool, i) => (
+					<li
+						class:list={[
+							'animate-fade-in-up border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent',
+							i === 0 ? 'animate-delay-100' : i === 1 ? 'animate-delay-200' : i === 2 ? 'animate-delay-300' : 'animate-delay-400',
+						]}
+					>
+						<EntryRow
+							prefix=">"
+							badge={!tool.href ? 'soon' : undefined}
+							wrapperClass="tool-row"
+							dataAttrs={{ 'data-name': tool.name, 'data-desc': tool.desc }}
+						>
+							<span class="w-28 shrink-0 font-mono text-sm font-semibold text-text-primary transition group-hover:text-accent">
+								{tool.name}
+							</span>
+							<span class="flex-1 truncate font-mono text-xs text-text-muted">{tool.desc}</span>
+						</EntryRow>
+					</li>
+				))
+			}
+			<li class="tool-empty hidden border-l-2 border-border py-5 pl-4">
+				<p class="font-mono text-xs text-text-muted">// no utilities matched your query</p>
+			</li>
+		</ul>
+
+		<div class="font-mono text-xs text-text-muted">
+			/* {tools.length} utilities available */
+		</div>
+	</div>
+
+	<script is:inline>
+		(function () {
+			const input = document.getElementById('tool-search');
+			const rows = document.querySelectorAll('.tool-row');
+			const empty = document.querySelector('.tool-empty');
+			if (!input || !empty) return;
+
+			input.addEventListener('input', function () {
+				const q = this.value.toLowerCase().trim();
+				let visible = 0;
+				rows.forEach(function (row) {
+					const name = (row.getAttribute('data-name') || '').toLowerCase();
+					const desc = (row.getAttribute('data-desc') || '').toLowerCase();
+					const match = name.includes(q) || desc.includes(q);
+					row.parentElement.style.display = match ? '' : 'none';
+					if (match) visible++;
+				});
+				empty.style.display = visible === 0 ? '' : 'none';
+			});
+		})();
+	</script>
+</Layout>
