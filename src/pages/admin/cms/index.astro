@@ -1,20 +1,18 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-import { listObjectsWithPrefix } from '@/lib/s3';
+import { getFileIndex } from '@/lib/file-index';
+import { getEnv } from '@/lib/runtime';
 
 export const prerender = false;
 
 const err = Astro.url.searchParams.get('err');
 const deleted = Astro.url.searchParams.get('deleted');
+const collision = Astro.url.searchParams.get('collision');
 
-let keys: string[] = [];
-try {
-	keys = await listObjectsWithPrefix('mdx/');
-} catch {
-	keys = [];
-}
-keys.sort();
+const env = getEnv();
+const index = await getFileIndex(env);
+const keys = index.map((e) => e.key).sort();
 ---
 
 <Layout title="CMS">
@@ -23,6 +21,7 @@ keys.sort();
 
 	{err ? <p class="mt-4 text-sm text-red-400">Something went wrong (S3 or validation).</p> : null}
 	{deleted ? <p class="mt-4 text-sm text-green-400">Object deleted.</p> : null}
+	{collision ? <p class="mt-4 text-sm text-red-400">An object with that name already exists.</p> : null}
 
 	<p class="mt-6">
 		<a href="/admin/cms/new" class="text-amber-400 hover:underline">+ New MDX object</a>

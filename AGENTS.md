@@ -38,7 +38,7 @@ In production these are Wrangler secrets / bindings (see `wrangler.jsonc`).
 ## Architecture
 
 - **All pages are dynamic** (`export const prerender = false` is required on every page because the default Astro behavior in `server` mode can still prerender some routes).
-- **Content lives in S3**, not in this repo. Posts are `.mdx` files under the `mdx/posts/` prefix in the configured bucket.
+- **Content lives in S3**, not in this repo. Posts are `.mdx` files under the `mdx/blogs/` prefix in the configured bucket.
 - **Edge caching**: public GET pages (non-admin, non-api, non-`/_`) are cached via `caches.default` in production. In dev, an in-memory `Map` emulates the cache (`src/lib/runtime.dev.ts`).
 - **Cache purge is manual**: after editing content via the CMS, go to `/admin/purge` and submit the public URL(s) to evict from the edge cache. There is no automatic invalidation on CMS save.
 

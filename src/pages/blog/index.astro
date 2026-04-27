@@ -1,24 +1,21 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { splitFrontmatter } from '@/lib/frontmatter';
-import { getObjectText, listPostKeys, slugFromPostKey } from '@/lib/s3';
+import { getFileIndex } from '@/lib/file-index';
+import { getEnv } from '@/lib/runtime';
+import { POSTS_PREFIX, slugFromPostKey } from '@/lib/s3';
 
 export const prerender = false;
 
-const keys = await listPostKeys();
+const env = getEnv();
+const index = await getFileIndex(env);
 
-const items = await Promise.all(
-	keys.map(async (key) => {
-		const raw = await getObjectText(key);
-		const { data } = splitFrontmatter(raw);
-		const slug = slugFromPostKey(key);
-		return {
-			slug,
-			title: data.title ?? slug,
-			date: data.date ?? '',
-		};
-	}),
-);
+const items = index
+	.filter((e) => e.key.startsWith(POSTS_PREFIX) && e.key.endsWith('.mdx'))
+	.map((e) => ({
+		slug: slugFromPostKey(e.key),
+		title: e.title ?? slugFromPostKey(e.key),
+		date: e.date ?? '',
+	}));
 
 items.sort((a, b) => b.date.localeCompare(a.date));
 ---
@@ -28,7 +25,7 @@ items.sort((a, b) => b.date.localeCompare(a.date));
 	<ul class="mt-8 space-y-4">
 		{
 			items.length === 0 ? (
-				<p class="text-zinc-500">No posts yet. Add `.mdx` files under `mdx/posts/` in S3, then open a post URL.</p>
+				<p class="text-zinc-500">No posts yet. Add `.mdx` files under `mdx/blogs/` in S3, then open a post URL.</p>
 			) : (
 				items.map((p) => (
 					<li class="border-b border-zinc-800 pb-4">

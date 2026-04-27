@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 
+import { deleteFileIndexEntry } from '@/lib/file-index';
+import { getEnv } from '@/lib/runtime';
 import { deleteObject } from '@/lib/s3';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -21,6 +23,10 @@ export const POST: APIRoute = async ({ request }) => {
 	} catch {
 		return Response.redirect(new URL('/admin/cms?err=1', request.url), 302);
 	}
+
+	// Write-through to KV cache (silent failure)
+	const env = getEnv();
+	await deleteFileIndexEntry(env, key);
 
 	return Response.redirect(new URL('/admin/cms?deleted=1', request.url), 302);
 };

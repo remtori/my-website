@@ -2,7 +2,7 @@ import { AwsClient } from 'aws4fetch';
 
 import { getEnv } from './runtime';
 
-export const POSTS_PREFIX = 'mdx/posts/';
+export const POSTS_PREFIX = 'mdx/blogs/';
 
 function clientForEnv(env: Env): AwsClient {
 	return new AwsClient({
@@ -18,26 +18,38 @@ function bucketRootUrl(env: Env): string {
 	return `${base}/${env.S3_BUCKET}`;
 }
 
-/** Path-style list: GET /bucket?list-type=2&prefix= */
+/** Path-style list: GET /bucket?list-type=2&prefix= (paginated). */
 export async function listObjectsWithPrefix(prefix: string): Promise<string[]> {
 	const env = getEnv();
 	if (!env.S3_ENDPOINT || !env.S3_BUCKET) {
 		return [];
 	}
-	const url = new URL(bucketRootUrl(env));
-	url.searchParams.set('list-type', '2');
-	url.searchParams.set('prefix', prefix);
-	const aws = clientForEnv(env);
-	const res = await aws.fetch(url.toString(), { method: 'GET' });
-	if (!res.ok) {
-		const t = await res.text();
-		throw new Error(`S3 list failed ${res.status}: ${t.slice(0, 200)}`);
-	}
-	const xml = await res.text();
 	const keys: string[] = [];
-	for (const m of xml.matchAll(/<Key>([^<]+)<\/Key>/g)) {
-		keys.push(m[1]);
-	}
+	let continuationToken: string | undefined;
+	const aws = clientForEnv(env);
+	const base = bucketRootUrl(env);
+
+	do {
+		const url = new URL(base);
+		url.searchParams.set('list-type', '2');
+		url.searchParams.set('prefix', prefix);
+		if (continuationToken) {
+			url.searchParams.set('continuation-token', continuationToken);
+		}
+		const res = await aws.fetch(url.toString(), { method: 'GET' });
+		if (!res.ok) {
+			const t = await res.text();
+			throw new Error(`S3 list failed ${res.status}: ${t.slice(0, 200)}`);
+		}
+		const xml = await res.text();
+		for (const m of xml.matchAll(/<Key>([^<]+)<\/Key>/g)) {
+			keys.push(m[1]);
+		}
+		const truncated = xml.includes('<IsTruncated>true</IsTruncated>');
+		const tokenMatch = xml.match(/<NextContinuationToken>([^<]+)<\/NextContinuationToken>/);
+		continuationToken = truncated && tokenMatch ? tokenMatch[1] : undefined;
+	} while (continuationToken);
+
 	return keys;
 }
 

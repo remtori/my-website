@@ -13,6 +13,11 @@
 			"binding": "SESSION",
 			"id": "156680054331426aafc6ed962c7cd944",
 			"preview_id": "f5ea68c1f79843f0b8d88acca7520804"
+		},
+		{
+			"binding": "DATA",
+			"id": "4d67222c796f4c8bbd4da4d98c8e4396",
+			"preview_id": "16758d5bdbbb44ff88d67eb543fccf68"
 		}
 	],
 	"observability": {
