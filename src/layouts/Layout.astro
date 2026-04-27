@@ -16,6 +16,9 @@ const { title, description = 'Personal site' } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
+		<meta name="theme-color" content="#09090b" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Remtori" />
 		<title>{title}</title>
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 		<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
@@ -23,6 +26,11 @@ const { title, description = 'Personal site' } = Astro.props;
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<ClientRouter />
+		<script is:inline>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/sw.js');
+			}
+		</script>
 	</head>
 	<body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
 		<header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur">
