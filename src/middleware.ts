@@ -36,7 +36,13 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		const cacheReq = cacheablePublicRequest(context.request);
 		const hit = await getCache().match(cacheReq);
 		if (hit) {
-			return hit;
+			// Rebuild with mutable headers — Astro's render loop mutates
+			// response headers (e.g. attaching cookies / deleting ROUTE_TYPE_HEADER).
+			return new Response(hit.body, {
+				status: hit.status,
+				statusText: hit.statusText,
+				headers: new Headers(hit.headers),
+			});
 		}
 	}
 
