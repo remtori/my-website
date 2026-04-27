@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { title, description = 'Personal site' } = Astro.props;
+const isAdmin = Astro.url.pathname.startsWith('/admin');
 ---
 
 <!doctype html>
@@ -16,7 +17,7 @@ const { title, description = 'Personal site' } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
-		<meta name="theme-color" content="#09090b" />
+		<meta name="theme-color" content="#0a0d12" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-title" content="Remtori" />
 		<title>{title}</title>
@@ -27,19 +28,32 @@ const { title, description = 'Personal site' } = Astro.props;
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<ClientRouter />
 		<script is:inline>
-			if ('serviceWorker' in navigator) {
+			if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
 				navigator.serviceWorker.register('/sw.js');
 			}
 		</script>
 	</head>
-	<body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
-		<header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur">
-			<nav class="mx-auto flex max-w-3xl flex-wrap items-center gap-4 px-4 py-4 text-sm">
-				<a href="/" class="font-semibold text-amber-400 transition hover:text-amber-300" transition:animate="none"> Home </a>
-				<a href="/blog" class="text-zinc-300 transition hover:text-white" transition:animate="none"> Blog </a>
+	<body class="min-h-screen bg-bg-base text-text-primary font-body antialiased">
+		<header class="sticky top-0 z-50 border-b-2 border-accent bg-bg-base">
+			<nav class="mx-auto flex max-w-3xl items-center gap-6 px-4 py-4 text-sm">
+				<a href="/" class="font-display text-xl font-bold text-accent hover:text-accent-light transition" transition:animate="none">
+					Remtori
+				</a>
+				<div class="flex-1"></div>
+				<a href="/" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
+					Home
+				</a>
+				<a href="/blog" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
+					Blog
+				</a>
+				{isAdmin && (
+					<span class="border border-accent bg-accent/10 px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider text-accent">
+						Admin
+					</span>
+				)}
 			</nav>
 		</header>
-		<main class="mx-auto max-w-3xl px-4 py-10">
+		<main class:list={["mx-auto max-w-3xl px-4 py-12", isAdmin && "border-l-2 border-accent/60 pl-5"]}>
 			<slot />
 		</main>
 	</body>

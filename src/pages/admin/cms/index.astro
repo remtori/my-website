@@ -16,30 +16,47 @@ const keys = index.map((e) => e.key).sort();
 ---
 
 <Layout title="CMS">
-	<h1 class="text-2xl font-bold text-white">Content (S3)</h1>
-	<p class="mt-2 text-zinc-400">List, edit, or create objects under the <code class="text-amber-400">mdx/</code> prefix.</p>
+	<div class="animate-fade-in-up space-y-3">
+		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Content</h1>
+		<div class="h-1 w-16 bg-accent"></div>
+		<p class="text-text-secondary text-sm">
+			List, edit, or create objects under the <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">mdx/</code> prefix.
+		</p>
+	</div>
 
-	{err ? <p class="mt-4 text-sm text-red-400">Something went wrong (S3 or validation).</p> : null}
-	{deleted ? <p class="mt-4 text-sm text-green-400">Object deleted.</p> : null}
-	{collision ? <p class="mt-4 text-sm text-red-400">An object with that name already exists.</p> : null}
+	{err ? <p class="mt-5 border border-error/30 bg-error/5 px-4 py-3 font-mono text-sm text-error">Something went wrong (S3 or validation).</p> : null}
+	{deleted ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Object deleted.</p> : null}
+	{collision ? <p class="mt-5 border border-error/30 bg-error/5 px-4 py-3 font-mono text-sm text-error">An object with that name already exists.</p> : null}
 
-	<p class="mt-6">
-		<a href="/admin/cms/new" class="text-amber-400 hover:underline">+ New MDX object</a>
-	</p>
+	<div class="mt-6">
+		<a
+			href="/admin/cms/new"
+			class="inline-flex items-center gap-2 bg-accent px-5 py-3 font-display font-bold text-bg-base shadow-[4px_4px_0px_#b0882e] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#b0882e]"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+			New MDX object
+		</a>
+	</div>
 
-	<ul class="mt-6 space-y-2">
+	<ul class="mt-6 divide-y-2 divide-border border-2 border-border bg-bg-surface">
 		{
 			keys.length === 0 ? (
-				<li class="text-zinc-500">No objects found. Configure S3 env vars or create a post.</li>
+				<li class="px-5 py-8 text-center text-sm text-text-muted font-mono">
+					No objects found. Configure S3 env vars or create a post.
+				</li>
 			) : (
 				keys.map((k) => (
-					<li class="flex flex-wrap items-center gap-2 border-b border-zinc-800 py-2 text-sm">
-						<a class="text-amber-400 hover:underline" href={`/admin/cms/edit?key=${encodeURIComponent(k)}`}>
+					<li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-sm">
+						<a class="font-mono text-accent transition hover:text-accent-light hover:underline underline-offset-2" href={`/admin/cms/edit?key=${encodeURIComponent(k)}`}>
 							{k}
 						</a>
 						<form method="POST" action="/api/admin/cms-delete" class="inline">
 							<input type="hidden" name="key" value={k} />
-							<button type="submit" class="text-xs text-red-400 hover:underline" onclick="return confirm('Delete this object?')">
+							<button
+								type="submit"
+								class="font-mono text-xs text-error transition hover:underline underline-offset-2"
+								onclick="return confirm('Delete this object?')"
+							>
 								Delete
 							</button>
 						</form>

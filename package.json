@@ -15,6 +15,9 @@
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^13.2.1",
+		"@fontsource-variable/bricolage-grotesque": "^5.2.10",
+		"@fontsource-variable/source-sans-3": "^5.2.9",
+		"@fontsource/jetbrains-mono": "^5.2.8",
 		"@tailwindcss/vite": "^4.2.4",
 		"astro": "^6.1.9",
 		"aws4fetch": "^1.0.20",

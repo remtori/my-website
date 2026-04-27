@@ -5,12 +5,37 @@ export const prerender = false;
 ---
 
 <Layout title="Admin">
-	<h1 class="text-2xl font-bold text-white">Dashboard</h1>
-	<ul class="mt-8 space-y-3 text-amber-400">
-		<li><a class="hover:underline" href="/admin/cms">CMS — edit MDX in S3</a></li>
-		<li><a class="hover:underline" href="/admin/purge">Purge edge cache</a></li>
-	</ul>
-	<form method="POST" action="/api/admin/logout" class="mt-10">
-		<button type="submit" class="text-sm text-zinc-500 underline hover:text-zinc-300"> Sign out </button>
+	<div class="animate-fade-in-up space-y-3">
+		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">Dashboard</h1>
+		<div class="h-1 w-16 bg-accent"></div>
+		<p class="text-text-secondary font-mono text-sm">Manage content and cache.</p>
+	</div>
+
+	<div class="mt-10 grid gap-4 sm:grid-cols-2">
+		<a
+			href="/admin/cms"
+			class="animate-fade-in-up animate-delay-100 group block border-2 border-border bg-bg-surface p-6 shadow-[4px_4px_0px_#1c2130] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-accent hover:shadow-[6px_6px_0px_#b0882e]"
+		>
+			<div class="flex h-12 w-12 items-center justify-center border-2 border-border bg-bg-base text-accent transition group-hover:border-accent group-hover:bg-accent group-hover:text-bg-base">
+				<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+			</div>
+			<h2 class="mt-5 font-display text-lg font-semibold text-text-primary">CMS</h2>
+			<p class="mt-1.5 text-sm text-text-secondary leading-relaxed">Edit MDX files stored in S3.</p>
+		</a>
+
+		<a
+			href="/admin/purge"
+			class="animate-fade-in-up animate-delay-200 group block border-2 border-border bg-bg-surface p-6 shadow-[4px_4px_0px_#1c2130] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-accent hover:shadow-[6px_6px_0px_#b0882e]"
+		>
+			<div class="flex h-12 w-12 items-center justify-center border-2 border-border bg-bg-base text-accent transition group-hover:border-accent group-hover:bg-accent group-hover:text-bg-base">
+				<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+			</div>
+			<h2 class="mt-5 font-display text-lg font-semibold text-text-primary">Purge cache</h2>
+			<p class="mt-1.5 text-sm text-text-secondary leading-relaxed">Evict edge-cached pages by URL.</p>
+		</a>
+	</div>
+
+	<form method="POST" action="/api/admin/logout" class="mt-12">
+		<button type="submit" class="font-mono text-xs text-text-muted underline underline-offset-4 transition hover:text-text-secondary">Sign out</button>
 	</form>
 </Layout>

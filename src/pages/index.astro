@@ -5,9 +5,145 @@ export const prerender = false;
 ---
 
 <Layout title="Home">
-	<h1 class="text-3xl font-bold tracking-tight text-white">Welcome</h1>
-	<p class="mt-4 text-lg text-zinc-400">Static pages and blog posts are cached at the edge until you purge them from the admin.</p>
-	<ul class="mt-8 list-inside list-disc space-y-2 text-zinc-300">
-		<li><a class="text-amber-400 hover:underline" href="/blog">Read the blog</a></li>
-	</ul>
+	<div
+		class="relative"
+		style="background-image: linear-gradient(rgba(212,168,87,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(212,168,87,0.025) 1px, transparent 1px); background-size: 64px 64px;"
+	>
+		<span
+			aria-hidden="true"
+			class="fixed top-0 right-0 select-none pointer-events-none translate-x-8 -translate-y-4 font-mono text-[20rem] leading-none font-bold"
+			style="color: rgba(212,168,87,0.03);"
+		>
+			{
+		</span>
+		<span
+			aria-hidden="true"
+			class="fixed bottom-0 left-0 select-none pointer-events-none -translate-x-8 translate-y-4 font-mono text-[20rem] leading-none font-bold"
+			style="color: rgba(212,168,87,0.03);"
+		>
+			}
+		</span>
+
+		<div class="mx-auto max-w-3xl px-4 py-12 lg:py-20">
+			<!-- Terminal window -->
+			<div class="animate-fade-in-up overflow-hidden border-2 border-border bg-bg-base shadow-[6px_6px_0px_#1c2130]">
+				<!-- Terminal header bar -->
+				<div class="flex items-center gap-2 border-b-2 border-border bg-bg-surface px-5 py-3">
+					<span class="h-3 w-3 rounded-full border border-error/30 bg-error/60"></span>
+					<span class="h-3 w-3 rounded-full border border-accent/30 bg-accent/60"></span>
+					<span class="h-3 w-3 rounded-full border border-success/30 bg-success/60"></span>
+					<span class="ml-3 font-mono text-xs text-text-muted">remtori@web — ~/site — zsh</span>
+				</div>
+
+				<!-- Terminal body -->
+				<div class="p-6 font-mono text-sm sm:p-10">
+					<div class="space-y-0">
+						<p class="animate-fade-in pb-4">
+							<span class="text-accent">❯</span> <span class="text-text-secondary">whoami</span>
+						</p>
+
+						<div class="animate-fade-in-up animate-delay-100 space-y-4 pb-6 font-display">
+							<p class="text-6xl font-bold tracking-tighter text-text-primary leading-none sm:text-7xl lg:text-8xl">
+								Remtori
+							</p>
+							<div class="h-1.5 w-24 bg-accent"></div>
+							<p class="max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+								Building things on the internet. Notes on code, infrastructure, and the tools that make it all work.
+							</p>
+						</div>
+
+						<div class="animate-fade-in-up animate-delay-300 space-y-3 pb-2">
+							<p>
+								<span class="text-accent">❯</span>
+								<a href="/blog" class="text-text-secondary transition-colors hover:text-accent hover:underline hover:underline-offset-4" transition:animate="none">
+									cat ~/posts/*
+								</a>
+								<span class="ml-2 hidden text-text-muted sm:inline"># read the blog</span>
+							</p>
+						</div>
+
+						<p class="animate-fade-in-up animate-delay-400 space-y-3 pt-4">
+							<span class="text-accent">❯</span>
+							<span class="cursor-blink ml-0.5 inline-block h-[1.1em] w-2.5 bg-accent align-middle"></span>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Side-by-side layout for features + system info -->
+			<div class="animate-fade-in-up animate-delay-500 mt-8 grid gap-4 sm:grid-cols-2">
+				<!-- Feature tiles -->
+				<div class="grid grid-cols-2 gap-3">
+					<a href="/blog" class="group block border-2 border-border bg-bg-surface p-5 shadow-[3px_3px_0px_#1c2130] transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-[4px_4px_0px_#b0882e]" transition:animate="none">
+						<div class="mb-2 font-mono text-xs text-text-muted">./01</div>
+						<p class="font-display text-sm font-semibold text-text-primary transition-colors group-hover:text-accent">Blog</p>
+						<p class="mt-1 font-mono text-xs text-text-muted/60">posts/*.mdx</p>
+					</a>
+					<div class="group block border-2 border-border bg-bg-surface p-5 shadow-[3px_3px_0px_#1c2130] transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-[4px_4px_0px_#b0882e]">
+						<div class="mb-2 font-mono text-xs text-text-muted">./02</div>
+						<p class="font-display text-sm font-semibold text-text-primary">Infra</p>
+						<p class="mt-1 font-mono text-xs text-text-muted/60">workers.toml</p>
+					</div>
+					<div class="group block border-2 border-border bg-bg-surface p-5 shadow-[3px_3px_0px_#1c2130] transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-[4px_4px_0px_#b0882e]">
+						<div class="mb-2 font-mono text-xs text-text-muted">./03</div>
+						<p class="font-display text-sm font-semibold text-text-primary">Tools</p>
+						<p class="mt-1 font-mono text-xs text-text-muted/60">~/.local/bin</p>
+					</div>
+					<div class="group block border-2 border-border bg-bg-surface p-5 shadow-[3px_3px_0px_#1c2130] transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-[4px_4px_0px_#b0882e]">
+						<div class="mb-2 font-mono text-xs text-text-muted">./04</div>
+						<p class="font-display text-sm font-semibold text-text-primary">Source</p>
+						<p class="mt-1 font-mono text-xs text-text-muted/60">github.com</p>
+					</div>
+				</div>
+
+				<!-- System panel -->
+				<div class="border-2 border-border bg-bg-surface p-6 shadow-[3px_3px_0px_#1c2130]">
+					<div class="mb-4 flex items-center gap-2">
+						<span class="h-2 w-2 rounded-full bg-success shadow-[0_0_6px_#4ade80]"></span>
+						<span class="font-mono text-xs text-text-muted uppercase tracking-widest">System</span>
+					</div>
+					<div class="space-y-2.5 font-mono text-xs">
+						<div class="flex justify-between">
+							<span class="text-text-muted">status</span>
+							<span class="text-success">online</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-text-muted">runtime</span>
+							<span class="text-text-secondary">cloudflare workers</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-text-muted">stack</span>
+							<span class="text-text-secondary">astro + tailwind + s3</span>
+						</div>
+						<div class="border-t border-border pt-2.5">
+							<div class="flex justify-between">
+								<span class="text-text-muted">posts</span>
+								<span class="text-text-secondary">/blog</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer line -->
+			<div class="animate-fade-in-up animate-delay-600 mt-8 font-mono text-xs text-text-muted/50">
+				<span class="text-accent/50">/*</span> remtori &copy; {new Date().getFullYear()} <span class="text-accent/50">*/</span>
+			</div>
+		</div>
+	</div>
 </Layout>
+
+<style is:global>
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+	}
+	.cursor-blink {
+		animation: blink 1s step-end infinite;
+	}
+</style>

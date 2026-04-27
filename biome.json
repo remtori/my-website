@@ -1,7 +1,12 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
 	"files": {
 		"includes": ["**", "!**/dist", "!**/.astro", "!**/.wrangler", "!**/.cursor", "!**/node_modules"]
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	},
 	"overrides": [
 		{

@@ -5,35 +5,48 @@ export const prerender = false;
 ---
 
 <Layout title="New MDX">
-	<h1 class="text-2xl font-bold text-white">New MDX object</h1>
+	<div class="animate-fade-in-up space-y-3">
+		<h1 class="font-display text-4xl font-bold tracking-tight text-text-primary">New MDX object</h1>
+		<div class="h-1 w-16 bg-accent"></div>
+		<p class="text-text-secondary text-sm">Create a new post or page in S3.</p>
+	</div>
 
-	<form method="POST" action="/api/admin/cms-save" class="mt-8 space-y-4">
-		<label class="block text-sm text-zinc-300">
-			Type
-			<select name="type" id="type-select" class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-500">
+	<form method="POST" action="/api/admin/cms-save" class="animate-fade-in-up animate-delay-100 mt-8 space-y-5">
+		<label class="block text-sm text-text-secondary">
+			<span class="mb-1.5 block font-medium">Type</span>
+			<select
+				name="type"
+				id="type-select"
+				class="w-full border-2 border-border bg-bg-base px-4 py-3 text-sm text-text-primary outline-none transition focus:border-accent"
+			>
 				<option value="blog">Blog post</option>
 				<option value="page">Page</option>
 			</select>
 		</label>
 
-		<label class="block text-sm text-zinc-300">
-			Title
+		<label class="block text-sm text-text-secondary">
+			<span class="mb-1.5 block font-medium">Title</span>
 			<input
 				name="title"
 				id="title-input"
 				required
 				placeholder="My new post"
-				class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 font-mono text-sm text-white outline-none focus:border-amber-500"
+				class="w-full border-2 border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
 			/>
 		</label>
 
-		<p class="text-xs text-zinc-500">
-			Key will be: <code id="derived-key" class="text-amber-400">mdx/blogs/{new Date().toISOString().slice(0, 10)}-my-new-post.mdx</code>
+		<p class="font-mono text-xs text-text-muted">
+			Key will be: <code id="derived-key" class="bg-bg-subtle px-2 py-0.5 font-mono text-accent">mdx/blogs/{new Date().toISOString().slice(0, 10)}-my-new-post.mdx</code>
 		</p>
 
-		<label class="block text-sm text-zinc-300">
-			Content
-			<textarea name="content" required rows={18} class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 font-mono text-sm text-white outline-none focus:border-amber-500">{
+		<label class="block text-sm text-text-secondary">
+			<span class="mb-1.5 block font-medium">Content</span>
+			<textarea
+				name="content"
+				required
+				rows={18}
+				class="w-full border-2 border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
+			>{
 				`---
 title: New post
 date: ${new Date().toISOString().slice(0, 10)}
@@ -43,7 +56,15 @@ Hello from **markdown**.`
 			}</textarea>
 		</label>
 
-		<button type="submit" class="rounded-md bg-amber-500 px-4 py-2 font-medium text-zinc-950 hover:bg-amber-400"> Save to S3 </button>
+		<div class="flex flex-wrap items-center gap-4 pt-1">
+			<button
+				type="submit"
+				class="bg-accent px-6 py-3 font-display font-bold text-bg-base shadow-[4px_4px_0px_#b0882e] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#b0882e]"
+			>
+				Save to S3
+			</button>
+			<a href="/admin/cms" class="font-mono text-xs text-text-muted underline underline-offset-4 transition hover:text-text-secondary">← Back to list</a>
+		</div>
 	</form>
 
 	<script is:inline>

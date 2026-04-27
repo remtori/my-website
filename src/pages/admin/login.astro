@@ -7,22 +7,33 @@ const err = Astro.url.searchParams.get('err');
 ---
 
 <Layout title="Admin login">
-	<h1 class="text-2xl font-bold text-white">Admin</h1>
-	<p class="mt-2 text-zinc-400">Sign in with the site password.</p>
+	<div class="animate-fade-in-up flex min-h-[65vh] items-center justify-center">
+		<div class="w-full max-w-sm border-2 border-border bg-bg-surface p-8 shadow-[4px_4px_0px_#1c2130]">
+			<div class="space-y-2 text-center">
+				<h1 class="font-display text-2xl font-bold text-text-primary">Admin</h1>
+				<p class="text-sm text-text-muted">Sign in with the site password.</p>
+			</div>
 
-	{err ? <p class="mt-4 text-sm text-red-400">Invalid password.</p> : null}
+			{err ? <p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm font-mono text-error">Invalid password.</p> : null}
 
-	<form method="POST" action="/api/admin/login" class="mt-8 max-w-sm space-y-4">
-		<label class="block text-sm text-zinc-300">
-			Password
-			<input
-				type="password"
-				name="password"
-				required
-				autocomplete="current-password"
-				class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-white outline-none focus:border-amber-500"
-			/>
-		</label>
-		<button type="submit" class="rounded-md bg-amber-500 px-4 py-2 font-medium text-zinc-950 hover:bg-amber-400"> Sign in </button>
-	</form>
+			<form method="POST" action="/api/admin/login" class="mt-6 space-y-5">
+				<label class="block text-sm text-text-secondary">
+					<span class="mb-1.5 block font-medium">Password</span>
+					<input
+						type="password"
+						name="password"
+						required
+						autocomplete="current-password"
+						class="w-full border-2 border-border bg-bg-base px-4 py-3 font-mono text-text-primary outline-none transition focus:border-accent"
+					/>
+				</label>
+				<button
+					type="submit"
+					class="w-full bg-accent px-4 py-3 font-display font-bold text-bg-base shadow-[4px_4px_0px_#b0882e] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#b0882e]"
+				>
+					Sign in
+				</button>
+			</form>
+		</div>
+	</div>
 </Layout>
