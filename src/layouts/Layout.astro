@@ -50,6 +50,9 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 				<a href="/tools" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
 					Tools
 				</a>
+				<a href="/archive" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
+					Archive
+				</a>
 				{isAdmin && (
 					<a href="/admin" class="border border-accent bg-accent/10 px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider text-accent">
 						Admin

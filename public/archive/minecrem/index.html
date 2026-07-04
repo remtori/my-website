@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+	<head>
+		<title>MinecRem</title>
+		<link rel="stylesheet" type="text/css" href="css/MinecRem.css">
+		<!--<link rel="stylesheet" type="text/css" href="css/Menu-bar.css">-->
+		<link href="images/favicon.ico" rel="icon" type="image/x-icon" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>		
+		<script src="https://www.gstatic.com/firebasejs/3.6.3/firebase.js"></script>
+		<style>			
+			html { 
+				background: url("images/MinecRem-background.jpg") no-repeat center center fixed; 
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+				font-family: Arial;
+			}
+		</style>
+	</head>
+	<body>
+		<!--		
+		<div class="pos-rel">
+		<ul class="bar">
+			<a href="Main page.html"><li>Trang chủ</li></a>
+			<a href="#"><li class="active">MinecRem</li></a>
+			<a href="Commands.html"><li>Commands</li></a>
+			<a href="Documents.html"><li>Tài liệu</li></a>
+			<a href="Games.html"><li>Mini Game</li></a>
+		</ul>
+		</div>
+		-->
+		<a name="top_page"></a>
+		<center>
+			<h3 style="color:lime;background-color:black;position:relative;width:45%;">
+			Đưa tôi những bức hình bạn muốn, tôi sẽ đưa nó vào minecraft !
+			</h3>
+		</center>
+
+		<div class="pos_rel">							
+				<button onclick="toggleDisplayGuide();" class="selectBut">Cách dùng</button>
+				<div class="guide" id="guide" style="display: none;">					
+					<center>
+						<button onclick="parent.open('http://imgur.com/a/SM39u')" style="background-color:black;padding-top:15px;">Hướng dẫn bằng hình !</button>
+					</center><br>
+					<div id="guide_frame"></div>
+				</div>
+		</div>		
+
+		<table>
+			<tr>		
+				<td><b>Tên Resources Pack: </b></td>
+				<td><input type="text" id="RSN" class="input" value = "Lê Quang Vũ"></td>		
+			</tr>
+			<tr>
+				<td><b>Mô tả Resources Pack:</b></td>
+				<td><input type="text" id="DCS" class="input" value = "§bby LQV"></td>					
+			</tr>
+			<tr>
+				<td><b>Độ phân giải tối đa: </b></td>
+				<td><select id="RSNS" class="input" onchange="res()"></select></td>
+			</tr>
+			<tr>
+				<td><b>Phiên bản Minecraft: </b></td>
+				<td><select id="mcVer" class="input" onchange="mcVer()">
+					<option value="0"> 1.11 + </option>
+					<option value="1"> 1.8 + </option>
+				</select></td>
+			</tr>
+		</table>							
+				
+		<div id="selectFiles">
+		
+			<button onclick="document.getElementById('inp_').click()" style="margin-top:5px;padding-right:16px;padding-left:16px;">Chọn hình ảnh</button>
+			
+			<input style="color:black;background-color:white;display:none;" type="file" accept=".png, .jpg, .jpeg" onchange="save(event)" id="inp_" multiple />
+
+		</div>
+		
+		<div class="darkBG" id='amout'></div>
+		
+		<div class="warn" id='warning' style="display:none">
+			<b>Cảnh báo, có quá nhiều hình ! </b>Hãy 						
+			<a href="#top_page" style="color:red" onclick="document.getElementById('warning').style.display='none'">				
+				giảm độ phân giải tối đa
+			</a>	
+			xuống để tránh xảy ra lỗi !
+		</div>
+		
+		<button id="trigger" onclick="trigger()" style="display:none">Tạo resources pack !</button>
+		
+		<button id="download" onclick="Output()" style="display:none">Download resources pack !</button>		
+		
+		<textarea rows="6" cols="160" style="display:none" id="cmd" onclick="this.select();" readonly></textarea>
+
+		<div style="max-width:90%;" id="preview"></div>					
+			
+		<div class="pos_rel"> 
+			<div class="pos_absol" id="toTop" style="bottom:120px;right:5px;background-color: green;font-size:19px;display:none;">
+				<a href="#top_page" style="text-decoration:none;color:black;">Lên đầu trang !</a>
+			</div>
+			<div class="pos_absol">
+			<b style="color:green"><u>Thông tin liên lạc:</u></b>
+			<ul style="color:green">
+				<li><b style="color:blue;cursor:pointer" onClick="parent.open('https://www.facebook.com/xLQVx')">
+					Facebook</b></li>
+				<li><b style="color:red;cursor:pointer" onClick="parent.open('https://www.youtube.com/LQV99')">
+					Youtube</b></li>
+			</ul>
+			</div>			
+		</div>				
+
+		<canvas id="myCanvas" style="display:none"> 		
+		
+		<script type="text/javascript" src="scripts/jszip.min.js"></script>
+		<script type="text/javascript" src="scripts/FileSaver.min.js"></script>
+		<script type="text/javascript" src="scripts/MinecRem-process.js"></script>		
+		<script>
+			window.onbeforeunload = function() {return "cc";}
+			window.onload = function () {
+				var opt="";
+				for (i=0;i<so.length;i++) {
+					opt+='<option value='+i+'>'+so[i]+'x'+so[i]+'</option>';
+				}
+				document.getElementById('RSNS').innerHTML=opt;
+				document.getElementById('RSNS').value=5;
+
+			}
+			window.onscroll = function (e) {
+				var vscroll = document.body.scrollTop;   
+				if (vscroll > 0) {
+					document.getElementById('toTop').style.display='block';
+				} else {
+					document.getElementById('toTop').style.display='none';
+				}
+			}
+		</script>
+	</body>
+</html>

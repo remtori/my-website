@@ -1,0 +1,85 @@
+---
+import EntryRow from '@/components/EntryRow.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import SearchBar from '@/components/SearchBar.astro';
+import Layout from '@/layouts/Layout.astro';
+import { archiveItems } from '@/lib/archive';
+
+export const prerender = false;
+---
+
+<Layout title="Archive">
+	<PageHeader
+		title="Archive"
+		subtitle="Recovered older projects, experiments, and web artifacts."
+		size="lg"
+	/>
+
+	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
+		<SearchBar id="archive-search" placeholder="filter archived projects..." />
+
+		<ul id="archive-list" class="space-y-0">
+			{
+				archiveItems.map((item, i) => (
+					<li
+						class:list={[
+							'archive-row border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent hover:bg-bg-surface/50',
+							i === 0 ? 'animate-fade-in-up animate-delay-100' : 'animate-fade-in-up animate-delay-200',
+						]}
+						data-title={item.title}
+						data-description={item.description}
+						data-kind={item.kind}
+					>
+						<EntryRow href={item.href} prefix=">" wrapperClass="items-start" dataAttrs={{ 'data-astro-reload': 'true' }}>
+							<span class="w-24 shrink-0 font-mono text-xs text-text-muted">{item.date}</span>
+							<span class="min-w-0 flex-1">
+								<span class="block font-display text-lg font-semibold text-accent transition group-hover:text-accent-light">
+									{item.title}
+								</span>
+								<span class="mt-1 block font-mono text-xs leading-relaxed text-text-muted">{item.description}</span>
+							</span>
+							<span class="shrink-0 font-mono text-[10px] uppercase text-text-muted">{item.kind}</span>
+						</EntryRow>
+					</li>
+				))
+			}
+			<li id="archive-empty" class="hidden border-l-2 border-border py-5 pl-4">
+				<p class="font-mono text-xs text-text-muted">// no archived projects matched your query</p>
+			</li>
+		</ul>
+
+		<div class="font-mono text-xs text-text-muted">
+			/* {archiveItems.length} archived artifact{archiveItems.length === 1 ? '' : 's'} */
+		</div>
+	</div>
+
+	<script is:inline>
+		(function () {
+			function initArchiveSearch() {
+				const input = document.getElementById('archive-search');
+				const rows = document.querySelectorAll('.archive-row');
+				const empty = document.getElementById('archive-empty');
+				if (!input || !empty) return;
+				if (input.dataset.archiveSearchReady === 'true') return;
+				input.dataset.archiveSearchReady = 'true';
+
+				input.addEventListener('input', function () {
+					const q = this.value.toLowerCase().trim();
+					let visible = 0;
+					rows.forEach(function (row) {
+						const title = (row.getAttribute('data-title') || '').toLowerCase();
+						const desc = (row.getAttribute('data-description') || '').toLowerCase();
+						const kind = (row.getAttribute('data-kind') || '').toLowerCase();
+						const match = title.includes(q) || desc.includes(q) || kind.includes(q);
+						row.style.display = match ? '' : 'none';
+						if (match) visible++;
+					});
+					empty.style.display = visible === 0 ? 'block' : 'none';
+				});
+			}
+
+			document.addEventListener('astro:page-load', initArchiveSearch);
+			initArchiveSearch();
+		})();
+	</script>
+</Layout>
