@@ -1,4 +1,4 @@
-const CACHE_NAME = 'remtori-shell-v1';
+const CACHE_NAME = 'remtori-shell-v2';
 const PRECACHE_ASSETS = [
 	'/favicon.ico',
 	'/manifest.webmanifest',
@@ -29,8 +29,18 @@ function isApiRequest(url) {
 	return url.pathname.startsWith('/api/');
 }
 
-function isAssetRequest(url) {
-	return url.pathname.includes('.') && !url.pathname.endsWith('/');
+function shouldCacheResponse(response) {
+	return response.status === 200 && response.type !== 'opaque';
+}
+
+function fetchAndUpdateCache(request) {
+	return fetch(request).then((response) => {
+		if (shouldCacheResponse(response)) {
+			const clone = response.clone();
+			caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+		}
+		return response;
+	});
 }
 
 self.addEventListener('fetch', (event) => {
@@ -42,36 +52,10 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	if (isApiRequest(url)) {
-		// Network-only for API
+	if (request.method !== 'GET' || isApiRequest(url)) {
+		// Network-only for mutations and API requests.
 		return;
 	}
 
-	if (request.mode === 'navigate' || !isAssetRequest(url)) {
-		// Network-first for pages
-		event.respondWith(
-			fetch(request)
-				.then((response) => {
-					const clone = response.clone();
-					caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-					return response;
-				})
-				.catch(() => caches.match(request)),
-		);
-		return;
-	}
-
-	// Cache-first for static assets
-	event.respondWith(
-		caches.match(request).then((cached) => {
-			if (cached) {
-				return cached;
-			}
-			return fetch(request).then((response) => {
-				const clone = response.clone();
-				caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-				return response;
-			});
-		}),
-	);
+	event.respondWith(fetchAndUpdateCache(request).catch(() => caches.match(request)));
 });

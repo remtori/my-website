@@ -1,15 +1,11 @@
 import type { MiddlewareHandler } from 'astro';
 
+import { cacheableRequestForUrl } from '@/lib/cache';
 import { getCache, getEnv } from '@/lib/runtime';
 import { getSessionCookieFromRequest, verifySessionValue } from '@/lib/session';
 
 function cacheablePublicRequest(req: Request): Request {
-	const u = new URL(req.url);
-	u.hash = '';
-	return new Request(u.toString(), {
-		method: 'GET',
-		headers: new Headers(),
-	});
+	return cacheableRequestForUrl(req.url);
 }
 
 function isPublicCacheableGet(url: URL, method: string): boolean {

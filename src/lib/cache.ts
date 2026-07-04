@@ -1,9 +1,24 @@
 import { getFileIndex } from './file-index';
 import { POSTS_PREFIX, slugFromPostKey } from './s3';
 
+function normalizeCachePathname(pathname: string): string {
+	if (pathname === '/index.html') {
+		return '/';
+	}
+	if (pathname.endsWith('/index.html')) {
+		return pathname.slice(0, -'index.html'.length);
+	}
+	if (pathname.endsWith('.html')) {
+		const withoutExtension = pathname.slice(0, -'.html'.length);
+		return withoutExtension === '' ? '/' : withoutExtension;
+	}
+	return pathname;
+}
+
 export function cacheableRequestForUrl(url: string): Request {
 	const u = new URL(url);
 	u.hash = '';
+	u.pathname = normalizeCachePathname(u.pathname);
 	return new Request(u.toString(), {
 		method: 'GET',
 		headers: new Headers(),
