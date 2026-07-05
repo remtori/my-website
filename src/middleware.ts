@@ -12,21 +12,11 @@ function isPublicCacheableGet(url: URL, method: string): boolean {
 	return method === 'GET' && !url.pathname.startsWith('/admin') && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/_');
 }
 
-function requiresCrossOriginIsolation(url: URL): boolean {
-	return url.pathname === '/tools/imgconv' || url.pathname === '/tools/imgconv/' || url.pathname.startsWith('/vendor/wasm-vips/');
-}
-
-function isolatedResponse(response: Response, url: URL): Response {
-	if (!requiresCrossOriginIsolation(url)) {
-		return response;
-	}
-
+function withCrossOriginIsolation(response: Response): Response {
 	const headers = new Headers(response.headers);
 	headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+	headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 	headers.set('Cross-Origin-Resource-Policy', 'same-origin');
-	if (url.pathname === '/tools/imgconv' || url.pathname === '/tools/imgconv/') {
-		headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-	}
 
 	return new Response(response.body, {
 		status: response.status,
@@ -57,13 +47,12 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		if (hit) {
 			// Rebuild with mutable headers — Astro's render loop mutates
 			// response headers (e.g. attaching cookies / deleting ROUTE_TYPE_HEADER).
-			return isolatedResponse(
+			return withCrossOriginIsolation(
 				new Response(hit.body, {
 					status: hit.status,
 					statusText: hit.statusText,
 					headers: new Headers(hit.headers),
 				}),
-				url,
 			);
 		}
 	}
@@ -74,16 +63,18 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		const ok = await verifySessionValue(raw, env.SESSION_SECRET);
 		if (!ok) {
 			if (url.pathname.startsWith('/api/admin/')) {
-				return new Response('Unauthorized', {
-					status: 401,
-					headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-				});
+				return withCrossOriginIsolation(
+					new Response('Unauthorized', {
+						status: 401,
+						headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+					}),
+				);
 			}
-			return Response.redirect(new URL('/admin/login', url), 302);
+			return withCrossOriginIsolation(Response.redirect(new URL('/admin/login', url), 302));
 		}
 	}
 
-	const response = isolatedResponse(await next(), url);
+	const response = withCrossOriginIsolation(await next());
 
 	if (isPublicCacheableGet(url, context.request.method) && response.ok) {
 		const cacheReq = cacheablePublicRequest(context.request);

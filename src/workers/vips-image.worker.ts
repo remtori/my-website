@@ -1,6 +1,7 @@
 import type { ImageMetadata, ImageToolOptions, MetadataEntry, WorkerOutput, WorkerRequest, WorkerResponse } from '@/lib/image-tool-types';
 
 type VipsFactory = (config?: Record<string, unknown>) => Promise<VipsRuntime>;
+type VipsBlob = string | ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array;
 type VipsVector<T> = Iterable<T> & {
 	size?: () => number;
 	get?: (index: number) => T | undefined;
@@ -62,8 +63,8 @@ type VipsImage = {
 };
 type VipsRuntime = {
 	Image: {
-		newFromBuffer(blob: Blob, strOptions?: string, options?: Record<string, unknown>): VipsImage;
-		svgloadBuffer?(blob: Blob, options?: Record<string, unknown>): VipsImage;
+		newFromBuffer(blob: VipsBlob, strOptions?: string, options?: Record<string, unknown>): VipsImage;
+		svgloadBuffer?(blob: VipsBlob, options?: Record<string, unknown>): VipsImage;
 	};
 	Target: {
 		newToMemory(): VipsTarget;
@@ -199,14 +200,14 @@ function replaceImage(handles: VipsImage[], next: VipsImage): VipsImage {
 }
 
 function loadImage(vips: VipsRuntime, buffer: ArrayBuffer, fileName: string, mime: string): VipsImage {
-	const blob = new Blob([buffer], { type: mime || 'application/octet-stream' });
+	const bytes = new Uint8Array(buffer);
 	const lowerName = fileName.toLowerCase();
 	const isSvg = mime.includes('svg') || lowerName.endsWith('.svg') || lowerName.endsWith('.svgz');
 	const svgloadBuffer = vips.Image.svgloadBuffer;
 	if (isSvg && svgloadBuffer) {
-		return svgloadBuffer(blob, { unlimited: true });
+		return svgloadBuffer(bytes, { access: 'random', unlimited: true });
 	}
-	return vips.Image.newFromBuffer(blob, '', { access: 'sequential', fail_on: 'none' });
+	return vips.Image.newFromBuffer(bytes, '', { access: 'random', fail_on: 'none' });
 }
 
 function metadataValue(image: VipsImage, field: string): string {

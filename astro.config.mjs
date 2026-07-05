@@ -23,6 +23,12 @@ function contentTypeFor(file) {
 	}
 }
 
+function setCrossOriginIsolationHeaders(res) {
+	res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+	res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+	res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+}
+
 async function copyWasmVipsAssets(outputRoot) {
 	const outputDir = join(outputRoot, 'vendor', 'wasm-vips');
 	await mkdir(outputDir, { recursive: true });
@@ -34,6 +40,8 @@ function wasmVipsRuntimeAssets() {
 		name: 'wasm-vips-runtime-assets',
 		configureServer(server) {
 			server.middlewares.use((req, res, next) => {
+				setCrossOriginIsolationHeaders(res);
+
 				const url = new URL(req.url ?? '/', 'http://localhost');
 				if (!url.pathname.startsWith(wasmVipsPublicPath)) {
 					next();
@@ -47,8 +55,6 @@ function wasmVipsRuntimeAssets() {
 				}
 
 				res.setHeader('Content-Type', contentTypeFor(file));
-				res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-				res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
 				readFile(join(wasmVipsLibDir, file)).then((data) => res.end(data), next);
 			});
 		},
