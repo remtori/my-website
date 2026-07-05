@@ -28,8 +28,8 @@ export const prerender = false;
 						]}
 					>
 						<EntryRow
+							href={tool.href}
 							prefix=">"
-							badge={!tool.href ? 'soon' : undefined}
 							wrapperClass="tool-row"
 							dataAttrs={{ 'data-name': tool.name, 'data-desc': tool.desc }}
 						>
@@ -47,7 +47,7 @@ export const prerender = false;
 		</ul>
 
 		<div class="font-mono text-xs text-text-muted">
-			/* {tools.length} utilities available */
+			/* {tools.length} utility available */
 		</div>
 	</div>
 

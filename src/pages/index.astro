@@ -168,8 +168,8 @@ const buildDate = new Date().toISOString().slice(0, 10);
 								) : (
 									popular.map((tool) => (
 										<EntryRow
+											href={tool.href}
 											prefix=">"
-											badge={!tool.href ? 'soon' : undefined}
 											wrapperClass="border-b border-border py-3 transition hover:bg-bg-surface/50 hover:pl-2"
 										>
 											<span class="w-24 shrink-0 font-mono text-xs font-semibold text-text-primary transition group-hover:text-accent">

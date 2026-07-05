@@ -1,0 +1,505 @@
+---
+import PageHeader from '@/components/PageHeader.astro';
+import Layout from '@/layouts/Layout.astro';
+
+export const prerender = false;
+
+const primaryFormats = [
+	{ value: 'jpeg', label: 'JPEG', checked: true },
+	{ value: 'png', label: 'PNG', checked: false },
+	{ value: 'webp', label: 'WebP', checked: false },
+	{ value: 'avif', label: 'AVIF', checked: false },
+];
+
+const moreFormats = [
+	{ value: 'heic', label: 'HEIC' },
+	{ value: 'jxl', label: 'JPEG XL' },
+	{ value: 'tiff', label: 'TIFF' },
+	{ value: 'gif', label: 'GIF' },
+	{ value: 'ppm', label: 'PPM' },
+	{ value: 'hdr', label: 'HDR' },
+	{ value: 'uhdr', label: 'Ultra HDR' },
+	{ value: 'raw', label: 'Raw pixels' },
+	{ value: 'csv', label: 'Pixel CSV' },
+];
+
+const field =
+	'w-full border border-border bg-bg-base px-3 py-2 font-mono text-sm text-text-primary outline-none transition focus:border-accent';
+const checkRow = 'flex items-center gap-2 font-mono text-xs text-text-secondary';
+const pill =
+	'block cursor-pointer select-none border border-border px-4 py-2 font-mono text-sm text-text-secondary transition hover:border-accent hover:text-accent peer-checked:border-accent peer-checked:bg-accent/10 peer-checked:font-bold peer-checked:text-accent peer-focus-visible:border-accent';
+const pillSmall =
+	'block cursor-pointer select-none border border-border px-3 py-1.5 font-mono text-xs text-text-secondary transition hover:border-accent hover:text-accent peer-checked:border-accent peer-checked:bg-accent/10 peer-checked:font-bold peer-checked:text-accent peer-focus-visible:border-accent';
+const summaryStyle =
+	'flex cursor-pointer select-none items-center gap-2 px-4 py-3 font-mono text-xs uppercase tracking-widest text-text-secondary transition hover:text-accent [&::-webkit-details-marker]:hidden [&::marker]:content-none';
+---
+
+<Layout
+	title="imgconv"
+	description="Convert, resize, and compress images entirely in your browser. Nothing gets uploaded."
+	wide={true}
+>
+	<div id="image-tool" class="mx-auto max-w-5xl">
+		<PageHeader
+			title="imgconv"
+			subtitle="Convert, resize, and compress images. Everything runs in your browser."
+			size="lg"
+		/>
+
+		<div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 border-y border-border py-3 font-mono text-xs text-text-muted">
+			<span class="flex items-center gap-1.5 text-success">
+				<span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+				100% local
+			</span>
+			<span>/</span>
+			<span>your images never leave this device</span>
+			<span class="hidden sm:inline">/</span>
+			<span class="hidden sm:inline">wasm-vips</span>
+			<span class="ml-auto" id="image-engine-status">checking engine</span>
+		</div>
+
+		<div
+			id="image-isolation-warning"
+			class="mt-4 hidden border border-error/40 bg-error/10 px-4 py-3 font-mono text-xs leading-relaxed text-error"
+		>
+			The conversion engine could not start because this session is missing cross-origin isolation.
+			Try a hard refresh (Cmd/Ctrl+Shift+R) or a different browser.
+		</div>
+
+		<!-- 01 / add -->
+		<section class="animate-fade-in-up animate-delay-100 mt-10">
+			<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">
+				<span class="text-accent">01</span> / add images
+			</h2>
+			<label
+				id="image-drop-zone"
+				class="group mt-3 block cursor-pointer border-2 border-dashed border-border bg-bg-muted px-6 py-12 text-center transition focus-within:border-accent hover:border-accent hover:bg-bg-surface"
+			>
+				<input
+					id="image-file-input"
+					class="sr-only"
+					type="file"
+					accept="image/*,.svg,.svgz,.heic,.heif,.jxl,.tif,.tiff,.ppm,.pam,.hdr,.uhdr,.raw"
+					multiple
+				/>
+				<svg
+					class="mx-auto h-9 w-9 text-text-muted transition group-hover:text-accent"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M12 3v12m0 0 4-4m-4 4-4-4"></path>
+					<path d="M4 19h16"></path>
+				</svg>
+				<span class="mt-4 block font-display text-2xl font-bold text-text-primary">Drop images anywhere</span>
+				<span class="mt-2 block font-mono text-xs text-text-muted">
+					or <span class="text-accent underline underline-offset-4">browse files</span> — pasting from the clipboard works too
+				</span>
+				<span class="mt-4 block font-mono text-[10px] text-text-muted">
+					jpeg · png · webp · avif · heic · jxl · tiff · gif · svg · ppm · hdr
+				</span>
+			</label>
+		</section>
+
+		<!-- 02 / output -->
+		<section class="animate-fade-in-up animate-delay-200 mt-10">
+			<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">
+				<span class="text-accent">02</span> / choose output
+			</h2>
+
+			<div class="mt-3 border border-border bg-bg-muted p-4 sm:p-5">
+				<div class="flex flex-wrap items-center gap-2">
+					{
+						primaryFormats.map((format) => (
+							<label>
+								<input
+									type="radio"
+									name="image-format"
+									value={format.value}
+									data-label={format.label}
+									data-image-control
+									class="peer sr-only"
+									checked={format.checked}
+								/>
+								<span class={pill}>{format.label}</span>
+							</label>
+						))
+					}
+					<details class="group relative">
+						<summary
+							class="flex cursor-pointer select-none items-center gap-1.5 border border-border px-4 py-2 font-mono text-sm text-text-secondary transition hover:border-accent hover:text-accent [&::-webkit-details-marker]:hidden [&::marker]:content-none"
+						>
+							<span id="image-more-formats-label">more formats</span>
+							<span class="text-text-muted transition group-open:rotate-180">▾</span>
+						</summary>
+						<div class="mt-2 flex flex-wrap gap-2 sm:absolute sm:left-0 sm:top-full sm:z-10 sm:mt-1 sm:w-72 sm:border sm:border-border sm:bg-bg-surface sm:p-3">
+							{
+								moreFormats.map((format) => (
+									<label>
+										<input
+											type="radio"
+											name="image-format"
+											value={format.value}
+											data-label={format.label}
+											data-image-control
+											class="peer sr-only"
+										/>
+										<span class={pillSmall}>{format.label}</span>
+									</label>
+								))
+							}
+						</div>
+					</details>
+				</div>
+				<p id="image-format-hint" class="mt-3 font-mono text-[11px] text-text-muted"></p>
+
+				<div id="image-quality-panel" class="mt-5 max-w-xl">
+					<span class="flex justify-between font-mono text-xs text-text-muted">
+						<span>quality</span>
+						<span><span id="image-quality-value" class="text-text-secondary">82</span> / 100</span>
+					</span>
+					<input id="image-quality" data-image-control type="range" min="1" max="100" value="82" class="mt-1 w-full accent-accent" />
+					<span class="flex justify-between font-mono text-[10px] text-text-muted">
+						<span>smaller file</span>
+						<span>best quality</span>
+					</span>
+				</div>
+			</div>
+
+			<div class="mt-3 grid gap-3 sm:grid-cols-2">
+				<details class="group border border-border bg-bg-muted">
+					<summary class={summaryStyle}>
+						<span class="inline-block text-text-muted transition group-open:rotate-90">▸</span>
+						resize
+						<span id="image-resize-summary" class="ml-auto font-mono text-[10px] normal-case tracking-normal text-text-muted">off</span>
+					</summary>
+					<div class="space-y-4 border-t border-border px-4 py-4">
+						<label class="block space-y-1">
+							<span class="font-mono text-xs text-text-muted">mode</span>
+							<select id="image-resize-mode" data-image-control class={field}>
+								<option value="none">keep original size</option>
+								<option value="fit">fit within box</option>
+								<option value="fill">fill box (may crop)</option>
+								<option value="exact">exact size (may stretch)</option>
+								<option value="scale">scale by percent</option>
+							</select>
+						</label>
+
+						<div id="image-dimensions-panel" class="hidden grid-cols-2 gap-3 [&:not(.hidden)]:grid">
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">width px</span>
+								<input id="image-width" data-image-control type="number" min="1" value="1200" class={field} />
+							</label>
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">height px</span>
+								<input id="image-height" data-image-control type="number" min="1" value="1200" class={field} />
+							</label>
+						</div>
+
+						<label id="image-scale-panel" class="hidden space-y-1 [&:not(.hidden)]:block">
+							<span class="flex justify-between font-mono text-xs text-text-muted">
+								<span>scale</span>
+								<span id="image-scale-value">100%</span>
+							</span>
+							<input id="image-scale" data-image-control type="range" min="1" max="400" value="100" class="w-full accent-accent" />
+						</label>
+
+						<label class={checkRow}>
+							<input id="image-upscale" data-image-control type="checkbox" class="accent-accent" />
+							<span>allow upscaling beyond original size</span>
+						</label>
+
+						<div class="grid grid-cols-2 gap-3">
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">kernel</span>
+								<select id="image-kernel" data-image-control class={field}>
+									<option value="lanczos3">lanczos3</option>
+									<option value="mks2021">mks2021</option>
+									<option value="mks2013">mks2013</option>
+									<option value="cubic">cubic</option>
+									<option value="mitchell">mitchell</option>
+									<option value="linear">linear</option>
+									<option value="nearest">nearest</option>
+								</select>
+							</label>
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">focus</span>
+								<select id="image-interesting" data-image-control class={field}>
+									<option value="attention">attention</option>
+									<option value="entropy">entropy</option>
+									<option value="centre">centre</option>
+									<option value="low">low</option>
+									<option value="high">high</option>
+									<option value="none">none</option>
+								</select>
+							</label>
+						</div>
+					</div>
+				</details>
+
+				<details class="group border border-border bg-bg-muted">
+					<summary class={summaryStyle}>
+						<span class="inline-block text-text-muted transition group-open:rotate-90">▸</span>
+						crop &amp; rotate
+						<span id="image-croprot-summary" class="ml-auto font-mono text-[10px] normal-case tracking-normal text-text-muted">off</span>
+					</summary>
+					<div class="space-y-4 border-t border-border px-4 py-4">
+						<label class="block space-y-1">
+							<span class="font-mono text-xs text-text-muted">crop</span>
+							<select id="image-crop-mode" data-image-control class={field}>
+								<option value="none">none</option>
+								<option value="manual">manual rectangle</option>
+								<option value="smart">smart crop to resize box</option>
+								<option value="trim">trim solid border</option>
+							</select>
+						</label>
+
+						<div id="image-manual-crop-panel" class="hidden grid-cols-2 gap-3 [&:not(.hidden)]:grid">
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">left</span>
+								<input id="image-crop-left" data-image-control type="number" min="0" value="0" class={field} />
+							</label>
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">top</span>
+								<input id="image-crop-top" data-image-control type="number" min="0" value="0" class={field} />
+							</label>
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">width</span>
+								<input id="image-crop-width" data-image-control type="number" min="1" value="800" class={field} />
+							</label>
+							<label class="block space-y-1">
+								<span class="font-mono text-xs text-text-muted">height</span>
+								<input id="image-crop-height" data-image-control type="number" min="1" value="800" class={field} />
+							</label>
+						</div>
+
+						<label id="image-trim-panel" class="hidden space-y-1 [&:not(.hidden)]:block">
+							<span class="flex justify-between font-mono text-xs text-text-muted">
+								<span>trim threshold</span>
+								<span id="image-trim-threshold-value">10</span>
+							</span>
+							<input id="image-trim-threshold" data-image-control type="range" min="0" max="100" value="10" class="w-full accent-accent" />
+						</label>
+
+						<label class="block space-y-1">
+							<span class="font-mono text-xs text-text-muted">rotate</span>
+							<select id="image-rotate-mode" data-image-control class={field}>
+								<option value="none">none</option>
+								<option value="d90">90° clockwise</option>
+								<option value="d180">180°</option>
+								<option value="d270">90° counterclockwise</option>
+								<option value="custom">custom angle</option>
+							</select>
+						</label>
+						<label id="image-custom-rotate-panel" class="hidden space-y-1 [&:not(.hidden)]:block">
+							<span class="font-mono text-xs text-text-muted">angle °</span>
+							<input id="image-custom-angle" data-image-control type="number" value="0" step="0.1" class={field} />
+						</label>
+
+						<div class="grid gap-2">
+							<label class={checkRow}>
+								<input id="image-flip-horizontal" data-image-control type="checkbox" class="accent-accent" />
+								<span>flip horizontal</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-flip-vertical" data-image-control type="checkbox" class="accent-accent" />
+								<span>flip vertical</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-autorotate" data-image-control type="checkbox" class="accent-accent" checked />
+								<span>auto-orient from EXIF</span>
+							</label>
+						</div>
+					</div>
+				</details>
+
+				<details class="group border border-border bg-bg-muted">
+					<summary class={summaryStyle}>
+						<span class="inline-block text-text-muted transition group-open:rotate-90">▸</span>
+						adjust
+						<span id="image-color-summary" class="ml-auto font-mono text-[10px] normal-case tracking-normal text-text-muted">off</span>
+					</summary>
+					<div class="space-y-4 border-t border-border px-4 py-4">
+						<div class="grid gap-2">
+							<label class={checkRow}>
+								<input id="image-grayscale" data-image-control type="checkbox" class="accent-accent" />
+								<span>grayscale</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-invert" data-image-control type="checkbox" class="accent-accent" />
+								<span>invert colors</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-flatten" data-image-control type="checkbox" class="accent-accent" />
+								<span>flatten transparency onto background</span>
+							</label>
+						</div>
+						<label class="block space-y-1">
+							<span class="font-mono text-xs text-text-muted">background color</span>
+							<input id="image-background" data-image-control type="color" value="#ffffff" class="h-10 w-full cursor-pointer border border-border bg-bg-base p-1" />
+						</label>
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted"><span>blur</span><span id="image-blur-value">0</span></span>
+							<input id="image-blur" data-image-control type="range" min="0" max="40" value="0" step="0.1" class="w-full accent-accent" />
+						</label>
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted"><span>sharpen</span><span id="image-sharpen-value">0</span></span>
+							<input id="image-sharpen" data-image-control type="range" min="0" max="20" value="0" step="0.1" class="w-full accent-accent" />
+						</label>
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted"><span>gamma</span><span id="image-gamma-value">1.00</span></span>
+							<input id="image-gamma" data-image-control type="range" min="0.1" max="5" value="1" step="0.05" class="w-full accent-accent" />
+						</label>
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted"><span>brightness</span><span id="image-brightness-value">0</span></span>
+							<input id="image-brightness" data-image-control type="range" min="-255" max="255" value="0" class="w-full accent-accent" />
+						</label>
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted"><span>contrast</span><span id="image-contrast-value">100%</span></span>
+							<input id="image-contrast" data-image-control type="range" min="0" max="300" value="100" class="w-full accent-accent" />
+						</label>
+					</div>
+				</details>
+
+				<details class="group border border-border bg-bg-muted">
+					<summary class={summaryStyle}>
+						<span class="inline-block text-text-muted transition group-open:rotate-90">▸</span>
+						encoder options
+						<span id="image-output-summary" class="ml-auto font-mono text-[10px] normal-case tracking-normal text-text-muted">defaults</span>
+					</summary>
+					<div class="space-y-4 border-t border-border px-4 py-4">
+						<label class="block space-y-1">
+							<span class="flex justify-between font-mono text-xs text-text-muted">
+								<span>encoder effort</span>
+								<span id="image-effort-value">6</span>
+							</span>
+							<input id="image-effort" data-image-control type="range" min="0" max="10" value="6" class="w-full accent-accent" />
+							<span class="flex justify-between font-mono text-[10px] text-text-muted">
+								<span>faster</span>
+								<span>smaller file</span>
+							</span>
+						</label>
+						<div class="grid gap-2">
+							<label class={checkRow}>
+								<input id="image-lossless" data-image-control type="checkbox" class="accent-accent" />
+								<span>lossless where the format supports it</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-progressive" data-image-control type="checkbox" class="accent-accent" />
+								<span>progressive / interlaced</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-keep-metadata" data-image-control type="checkbox" class="accent-accent" />
+								<span>keep EXIF / metadata</span>
+							</label>
+							<label class={checkRow}>
+								<input id="image-favicon" data-image-control type="checkbox" class="accent-accent" />
+								<span>also build a favicon set (.ico + png sizes)</span>
+							</label>
+						</div>
+					</div>
+				</details>
+			</div>
+		</section>
+
+		<!-- 03 / download -->
+		<section class="animate-fade-in-up animate-delay-300 mt-10">
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+				<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">
+					<span class="text-accent">03</span> / download
+				</h2>
+				<div class="ml-auto flex flex-wrap gap-2">
+					<button
+						id="image-download-all"
+						type="button"
+						class="hidden border border-accent bg-accent/10 px-4 py-2 font-mono text-xs font-bold text-accent transition hover:bg-accent hover:text-bg-base disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						download all (.zip)
+					</button>
+					<button
+						id="image-process"
+						type="button"
+						class="border border-border px-4 py-2 font-mono text-xs text-text-secondary transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-text-muted disabled:hover:border-border"
+					>
+						convert again
+					</button>
+					<button
+						id="image-cancel"
+						type="button"
+						class="border border-border px-4 py-2 font-mono text-xs text-text-secondary transition hover:border-error hover:text-error disabled:cursor-not-allowed disabled:text-text-muted disabled:hover:border-border"
+						disabled
+					>
+						cancel
+					</button>
+					<button
+						id="image-clear"
+						type="button"
+						class="border border-border px-4 py-2 font-mono text-xs text-text-secondary transition hover:border-error hover:text-error disabled:cursor-not-allowed disabled:text-text-muted disabled:hover:border-border"
+					>
+						clear
+					</button>
+				</div>
+			</div>
+			<p class="mt-2 font-mono text-[11px] text-text-muted">
+				conversion starts automatically when you add images or change settings
+			</p>
+			<ul id="image-queue" class="mt-3 border-t border-border"></ul>
+		</section>
+
+		<!-- results -->
+		<section id="image-results" class="mt-10 hidden">
+			<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">result</h2>
+			<div class="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+				<div class="space-y-2">
+					<div class="flex min-h-[280px] items-center justify-center border border-border bg-bg-muted">
+						<p id="image-preview-empty" class="font-mono text-xs text-text-muted">// output preview</p>
+						<img
+							id="image-preview"
+							class="hidden max-h-[520px] max-w-full cursor-crosshair object-contain"
+							alt="Processed output preview"
+							decoding="async"
+						/>
+					</div>
+					<p class="font-mono text-[11px] text-text-muted">
+						click the image to pick a color — picked <span id="image-picked-color" class="text-text-secondary">#------</span>
+					</p>
+				</div>
+
+				<div class="space-y-3">
+					<div class="flex items-baseline justify-between">
+						<h3 class="font-mono text-xs uppercase tracking-widest text-text-muted">palette</h3>
+						<span class="font-mono text-[10px] text-text-muted">click a swatch to copy</span>
+					</div>
+					<div id="image-palette" class="grid grid-cols-2 gap-2">
+						<p class="font-mono text-xs text-text-muted">// extracting</p>
+					</div>
+					<label class="block space-y-1 pt-1">
+						<span class="flex justify-between font-mono text-xs text-text-muted">
+							<span>colors</span>
+							<span id="image-palette-size-value">8</span>
+						</span>
+						<input id="image-palette-size" data-image-control type="range" min="2" max="16" value="8" class="w-full accent-accent" />
+					</label>
+				</div>
+			</div>
+
+			<details class="group mt-6 border border-border bg-bg-muted">
+				<summary class={summaryStyle}>
+					<span class="inline-block text-text-muted transition group-open:rotate-90">▸</span>
+					metadata
+				</summary>
+				<div id="image-metadata" class="border-t border-border px-4 py-4">
+					<p class="font-mono text-xs text-text-muted">// metadata appears after processing</p>
+				</div>
+			</details>
+		</section>
+	</div>
+
+	<script>
+		import '@/scripts/image-tool';
+	</script>
+</Layout>

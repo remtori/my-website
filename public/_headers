@@ -1,0 +1,7 @@
+/tools/imgconv
+	Cross-Origin-Embedder-Policy: require-corp
+	Cross-Origin-Opener-Policy: same-origin
+
+/vendor/wasm-vips/*
+	Cross-Origin-Embedder-Policy: require-corp
+	Cross-Origin-Resource-Policy: same-origin

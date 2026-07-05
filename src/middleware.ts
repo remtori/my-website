@@ -12,6 +12,29 @@ function isPublicCacheableGet(url: URL, method: string): boolean {
 	return method === 'GET' && !url.pathname.startsWith('/admin') && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/_');
 }
 
+function requiresCrossOriginIsolation(url: URL): boolean {
+	return url.pathname === '/tools/imgconv' || url.pathname === '/tools/imgconv/' || url.pathname.startsWith('/vendor/wasm-vips/');
+}
+
+function isolatedResponse(response: Response, url: URL): Response {
+	if (!requiresCrossOriginIsolation(url)) {
+		return response;
+	}
+
+	const headers = new Headers(response.headers);
+	headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+	headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+	if (url.pathname === '/tools/imgconv' || url.pathname === '/tools/imgconv/') {
+		headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+	}
+
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
 function requiresAdminSession(url: URL): boolean {
 	if (url.pathname === '/admin/login') {
 		return false;
@@ -34,11 +57,14 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		if (hit) {
 			// Rebuild with mutable headers — Astro's render loop mutates
 			// response headers (e.g. attaching cookies / deleting ROUTE_TYPE_HEADER).
-			return new Response(hit.body, {
-				status: hit.status,
-				statusText: hit.statusText,
-				headers: new Headers(hit.headers),
-			});
+			return isolatedResponse(
+				new Response(hit.body, {
+					status: hit.status,
+					statusText: hit.statusText,
+					headers: new Headers(hit.headers),
+				}),
+				url,
+			);
 		}
 	}
 
@@ -57,7 +83,7 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		}
 	}
 
-	const response = await next();
+	const response = isolatedResponse(await next(), url);
 
 	if (isPublicCacheableGet(url, context.request.method) && response.ok) {
 		const cacheReq = cacheablePublicRequest(context.request);

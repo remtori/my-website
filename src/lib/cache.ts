@@ -50,7 +50,7 @@ function pathFromMdxKey(key: string): string | null {
 
 export async function getAllContentCacheUrls(origin: string): Promise<string[]> {
 	const index = await getFileIndex();
-	const urls: string[] = [`${origin}/`, `${origin}/blog`, `${origin}/tools`];
+	const urls: string[] = [`${origin}/`, `${origin}/blog`, `${origin}/tools`, `${origin}/tools/imgconv`];
 
 	for (const entry of index) {
 		const path = pathFromMdxKey(entry.key);
