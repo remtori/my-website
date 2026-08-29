@@ -5,7 +5,9 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"types": ["@cloudflare/workers-types"]
+		"types": ["@cloudflare/workers-types"],
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js"
 	},
 	"include": [".astro/types.d.ts", "src/**/*"],
 	"exclude": ["dist"]

@@ -1,0 +1,15 @@
+---
+import FileBrowser from '@/components/file-browser/FileBrowser';
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getEnv } from '@/lib/runtime';
+
+export const prerender = false;
+
+const defaultBucket = getEnv().S3_BUCKET ?? '';
+---
+
+<AdminLayout title="Files" full>
+	<FileBrowser client:only="solid-js" defaultBucket={defaultBucket}>
+		<p slot="fallback" class="font-mono text-xs text-text-muted">loading file browser…</p>
+	</FileBrowser>
+</AdminLayout>

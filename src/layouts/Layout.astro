@@ -6,9 +6,10 @@ interface Props {
 	title: string;
 	description?: string;
 	wide?: boolean;
+	fluid?: boolean;
 }
 
-const { title, description = 'Personal site', wide = false } = Astro.props;
+const { title, description = 'Personal site', wide = false, fluid = false } = Astro.props;
 const isAdmin = Astro.url.pathname.startsWith('/admin');
 ---
 
@@ -60,7 +61,10 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 				)}
 			</nav>
 		</header>
-		<main class:list={["px-4 py-12", wide ? "mx-auto max-w-6xl" : "mx-auto max-w-3xl", isAdmin && !wide && "border-l-2 border-accent/60 pl-5"]}>
+		<main class:list={[
+			fluid ? "mx-auto max-w-[90rem] px-4 py-6" : wide ? "mx-auto max-w-6xl px-4 py-12" : "mx-auto max-w-3xl px-4 py-12",
+			isAdmin && !wide && !fluid && "border-l-2 border-accent/60 pl-5",
+		]}>
 			<slot />
 		</main>
 	</body>

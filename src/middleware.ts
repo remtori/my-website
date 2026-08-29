@@ -25,6 +25,15 @@ function withCrossOriginIsolation(response: Response): Response {
 	});
 }
 
+function skipIsolation(url: URL): boolean {
+	return url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin');
+}
+
+function isolateIfNeeded(url: URL, response: Response): Response {
+	if (skipIsolation(url)) return response;
+	return withCrossOriginIsolation(response);
+}
+
 function requiresAdminSession(url: URL): boolean {
 	if (url.pathname === '/admin/login') {
 		return false;
@@ -47,7 +56,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		if (hit) {
 			// Rebuild with mutable headers — Astro's render loop mutates
 			// response headers (e.g. attaching cookies / deleting ROUTE_TYPE_HEADER).
-			return withCrossOriginIsolation(
+			return isolateIfNeeded(
+				url,
 				new Response(hit.body, {
 					status: hit.status,
 					statusText: hit.statusText,
@@ -63,18 +73,19 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		const ok = await verifySessionValue(raw, env.SESSION_SECRET);
 		if (!ok) {
 			if (url.pathname.startsWith('/api/admin/')) {
-				return withCrossOriginIsolation(
+				return isolateIfNeeded(
+					url,
 					new Response('Unauthorized', {
 						status: 401,
 						headers: { 'Content-Type': 'text/plain; charset=utf-8' },
 					}),
 				);
 			}
-			return withCrossOriginIsolation(Response.redirect(new URL('/admin/login', url), 302));
+			return isolateIfNeeded(url, Response.redirect(new URL('/admin/login', url), 302));
 		}
 	}
 
-	const response = withCrossOriginIsolation(await next());
+	const response = isolateIfNeeded(url, await next());
 
 	if (isPublicCacheableGet(url, context.request.method) && response.ok) {
 		const cacheReq = cacheablePublicRequest(context.request);

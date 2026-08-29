@@ -4,6 +4,7 @@ import { copyFile, mkdir, readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, extname, join } from 'node:path';
 import cloudflare from '@astrojs/cloudflare';
+import solidJs from '@astrojs/solid-js';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
@@ -40,9 +41,12 @@ function wasmVipsRuntimeAssets() {
 		name: 'wasm-vips-runtime-assets',
 		configureServer(server) {
 			server.middlewares.use((req, res, next) => {
-				setCrossOriginIsolationHeaders(res);
-
 				const url = new URL(req.url ?? '/', 'http://localhost');
+				const skipIsolation = url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin');
+				if (!skipIsolation) {
+					setCrossOriginIsolationHeaders(res);
+				}
+
 				if (!url.pathname.startsWith(wasmVipsPublicPath)) {
 					next();
 					return;
@@ -73,6 +77,7 @@ export default defineConfig({
 	adapter: cloudflare({
 		imageService: 'compile',
 	}),
+	integrations: [solidJs()],
 	vite: {
 		plugins: [tailwindcss(), wasmVipsRuntimeAssets()],
 	},

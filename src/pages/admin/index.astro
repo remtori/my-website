@@ -9,6 +9,7 @@ const err = Astro.url.searchParams.get('err');
 const deleted = Astro.url.searchParams.get('deleted');
 const collision = Astro.url.searchParams.get('collision');
 const done = Astro.url.searchParams.get('done');
+const rebuilt = Astro.url.searchParams.get('rebuilt');
 
 const index = await getFileIndex();
 const keys = index.map((e) => e.key).sort();
@@ -23,16 +24,26 @@ const keys = index.map((e) => e.key).sort();
 	{deleted ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Object deleted.</p> : null}
 	{collision ? <p class="mt-5 border border-error/30 bg-error/5 px-4 py-3 font-mono text-sm text-error">An object with that name already exists.</p> : null}
 	{done !== null ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Removed {done} cache entries (best-effort; false = miss or not stored).</p> : null}
+	{rebuilt !== null ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Rebuilt file index ({rebuilt} objects). Purge cache separately if public pages are stale.</p> : null}
 
 	<div class="mt-8 flex items-baseline justify-between">
 		<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">Objects</h2>
-		<a
-			href="/admin/edit"
-			class="font-mono text-xs text-text-muted transition hover:text-accent"
-			transition:animate="none"
-		>
-			new object &rarr;
-		</a>
+		<div class="flex items-baseline gap-4">
+			<a
+				href="/admin/files"
+				class="font-mono text-xs text-text-muted transition hover:text-accent"
+				transition:animate="none"
+			>
+				file browser &rarr;
+			</a>
+			<a
+				href="/admin/edit"
+				class="font-mono text-xs text-text-muted transition hover:text-accent"
+				transition:animate="none"
+			>
+				new object &rarr;
+			</a>
+		</div>
 	</div>
 
 	<ul class="mt-4 border-t border-border">
@@ -63,6 +74,19 @@ const keys = index.map((e) => e.key).sort();
 			)
 		}
 	</ul>
+
+	<div class="animate-fade-in-up animate-delay-100 mt-12 border border-border bg-bg-surface/40 px-5 py-5">
+		<h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">File index</h2>
+		<p class="mt-1 font-mono text-xs text-text-muted">Rebuilds the KV listing of <code class="text-accent">mdx/</code> from S3. Does not purge the edge cache.</p>
+		<form method="POST" action="/api/admin/fs/rebuild-index" class="mt-4" data-confirm="Rebuild the MDX file index from S3?">
+			<button
+				type="submit"
+				class="cursor-pointer border border-border bg-bg-base px-5 py-2 font-display text-sm font-bold text-text-primary transition hover:border-accent hover:text-accent"
+			>
+				Rebuild index
+			</button>
+		</form>
+	</div>
 
 	<div class="animate-fade-in-up animate-delay-100 mt-12 border border-error/30 bg-error/5 px-5 py-5">
 		<h2 class="font-mono text-xs uppercase tracking-widest text-error">Danger zone</h2>
