@@ -87,8 +87,18 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 	let fileInput: HTMLInputElement | undefined;
 	let folderInput: HTMLInputElement | undefined;
 	let promptInput: HTMLInputElement | undefined;
+	let bucketSelect: HTMLSelectElement | undefined;
 	let listEl: HTMLDivElement | undefined;
 	let loadMoreLock = false;
+	let applyingBuckets = false;
+
+	const bucketOptions = createMemo(() => {
+		const current = bucket();
+		const list = buckets();
+		if (!current) return list;
+		if (list.includes(current)) return list;
+		return [current, ...list];
+	});
 
 	const rows = createMemo<Row[]>(() => {
 		const list: Row[] = [];
@@ -194,11 +204,22 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 		void loadPage();
 	});
 
+	createEffect(() => {
+		const current = bucket();
+		bucketOptions();
+		if (bucketSelect && current) bucketSelect.value = current;
+	});
+
 	onMount(() => {
 		writeUrl(bucket(), prefix(), true);
 		void fsApi.buckets().then((data) => {
+			applyingBuckets = true;
 			setBuckets(data.buckets);
 			setFallback(data.fallback);
+			requestAnimationFrame(() => {
+				if (bucketSelect && bucket()) bucketSelect.value = bucket();
+				applyingBuckets = false;
+			});
 		});
 		const onPop = () => {
 			const sp = new URLSearchParams(window.location.search);
@@ -524,15 +545,17 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 		<div class="flex h-[calc(100dvh-9rem)] min-h-[36rem] flex-col border border-border bg-bg-muted">
 			<div class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border px-3 py-2">
 				<select
+					ref={bucketSelect}
 					class="max-w-[12rem] shrink-0 border border-border bg-bg-base px-2 py-1 font-mono text-xs text-text-primary outline-none focus:border-accent"
 					value={bucket()}
 					title={fallback() ? 'Key cannot list buckets; showing configured default' : undefined}
-					onChange={(e) => go(e.currentTarget.value, '')}
+					onChange={(e) => {
+						const next = e.currentTarget.value;
+						if (applyingBuckets || !next || next === bucket()) return;
+						go(next, '');
+					}}
 				>
-					<Show when={!buckets().includes(bucket())}>
-						<option value={bucket()}>{bucket()}</option>
-					</Show>
-					<For each={buckets()}>{(name) => <option value={name}>{name}</option>}</For>
+					<For each={bucketOptions()}>{(name) => <option value={name}>{name}</option>}</For>
 				</select>
 				<nav class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 gap-y-1 font-mono text-xs">
 					<button type="button" class="text-accent transition hover:text-accent-light" onClick={() => go(bucket(), '')}>
