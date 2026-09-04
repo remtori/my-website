@@ -114,8 +114,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 		}
 
 		if (op === 'presign') {
-			const method = body.method === 'PUT' ? 'PUT' : body.method === 'GET' ? 'GET' : null;
-			if (!method) throw new FsError(400, 'method must be GET or PUT');
+			if (body.method !== 'GET') throw new FsError(400, 'method must be GET');
 			if (!Array.isArray(body.items)) throw new FsError(400, 'items must be an array');
 			if (body.items.length > PRESIGN_MAX) throw new FsError(400, `items exceeds max of ${PRESIGN_MAX}`);
 			const urls: { key: string; url: string }[] = [];
@@ -124,7 +123,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 				const rec = item as Record<string, unknown>;
 				const key = parseKey(typeof rec.key === 'string' ? rec.key : '');
 				const filename = typeof rec.filename === 'string' ? rec.filename : undefined;
-				urls.push({ key, url: await presignUrl(bucket, key, method, { filename }) });
+				urls.push({ key, url: await presignUrl(bucket, key, 'GET', { filename }) });
 			}
 			return json({ urls });
 		}
@@ -191,6 +190,27 @@ export const POST: APIRoute = async ({ params, request }) => {
 		}
 
 		return json({ error: 'Unknown operation' }, 404);
+	} catch (err) {
+		return jsonError(err);
+	}
+};
+
+export const PUT: APIRoute = async ({ params, request }) => {
+	try {
+		if (params.op !== 'put') {
+			return json({ error: 'Unknown operation' }, 404);
+		}
+		const url = new URL(request.url);
+		const bucket = parseBucket(url.searchParams.get('bucket'));
+		const key = parseKey(url.searchParams.get('key'));
+		const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
+		const rawLen = request.headers.get('Content-Length');
+		const contentLength = rawLen != null && rawLen !== '' ? Number(rawLen) : undefined;
+		if (contentLength != null && (!Number.isFinite(contentLength) || contentLength < 0)) {
+			throw new FsError(400, 'Invalid Content-Length');
+		}
+		await putObject(bucket, key, request.body ?? '', contentType, { contentLength });
+		return json({ ok: true, key });
 	} catch (err) {
 		return jsonError(err);
 	}

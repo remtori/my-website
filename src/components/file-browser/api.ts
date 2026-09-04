@@ -42,11 +42,7 @@ export const fsApi = {
 		return existing;
 	},
 
-	async presign(
-		bucket: string,
-		method: 'GET' | 'PUT',
-		items: { key: string; filename?: string }[],
-	): Promise<{ key: string; url: string }[]> {
+	async presign(bucket: string, method: 'GET', items: { key: string; filename?: string }[]): Promise<{ key: string; url: string }[]> {
 		const urls: { key: string; url: string }[] = [];
 		for (let i = 0; i < items.length; i += 50) {
 			const chunk = items.slice(i, i + 50);
@@ -111,6 +107,13 @@ export const fsApi = {
 
 	objectUrl(bucket: string, key: string): string {
 		const url = new URL('/api/admin/fs/get', window.location.origin);
+		url.searchParams.set('bucket', bucket);
+		url.searchParams.set('key', key);
+		return url.pathname + url.search;
+	},
+
+	putUrl(bucket: string, key: string): string {
+		const url = new URL('/api/admin/fs/put', window.location.origin);
 		url.searchParams.set('bucket', bucket);
 		url.searchParams.set('key', key);
 		return url.pathname + url.search;

@@ -41,20 +41,24 @@ function putFile(url: string, file: File, onProgress: (ratio: number) => void): 
 			if (event.lengthComputable && event.total > 0) onProgress(event.loaded / event.total);
 		};
 		xhr.onload = () => {
-			if (xhr.status >= 200 && xhr.status < 300) resolve();
-			else reject(new Error(`HTTP ${xhr.status}`));
+			if (xhr.status >= 200 && xhr.status < 300) {
+				resolve();
+				return;
+			}
+			try {
+				const data: unknown = JSON.parse(xhr.responseText);
+				const message =
+					data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
+						? data.error
+						: `HTTP ${xhr.status}`;
+				reject(new Error(message));
+			} catch {
+				reject(new Error(`HTTP ${xhr.status}`));
+			}
 		};
-		xhr.onerror = () => reject(new Error('Upload blocked — add a CORS rule on this bucket allowing PUT from this origin.'));
+		xhr.onerror = () => reject(new Error('Upload failed'));
 		xhr.send(file);
 	});
-}
-
-function corsHint(err: unknown): string {
-	const message = err instanceof Error ? err.message : 'Upload failed';
-	if (/cors|network|failed to fetch|upload blocked/i.test(message)) {
-		return 'Upload blocked — add a CORS rule on this bucket allowing PUT from this origin.';
-	}
-	return message;
 }
 
 export default function FileBrowser(props: { defaultBucket: string }) {
@@ -482,11 +486,10 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 	async function uploadOne(item: UploadItem) {
 		patchUpload(item.id, { status: 'uploading', progress: 0, error: undefined });
 		try {
-			const signed = await fsApi.presign(bucket(), 'PUT', [{ key: item.key }]);
-			await putFile(signed[0].url, item.file, (ratio) => patchUpload(item.id, { progress: ratio }));
+			await putFile(fsApi.putUrl(bucket(), item.key), item.file, (ratio) => patchUpload(item.id, { progress: ratio }));
 			patchUpload(item.id, { status: 'done', progress: 1 });
 		} catch (err) {
-			patchUpload(item.id, { status: 'error', error: corsHint(err) });
+			patchUpload(item.id, { status: 'error', error: err instanceof Error ? err.message : 'Upload failed' });
 		}
 	}
 

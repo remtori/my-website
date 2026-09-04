@@ -160,13 +160,31 @@ export async function getObjectText(key: string): Promise<string> {
 	return res.text();
 }
 
-export async function putObject(bucket: string, key: string, body: BodyInit, contentType: string): Promise<void> {
+function isReadableStream(body: BodyInit): body is ReadableStream<Uint8Array> {
+	return typeof body === 'object' && body !== null && 'getReader' in body;
+}
+
+export async function putObject(
+	bucket: string,
+	key: string,
+	body: BodyInit,
+	contentType: string,
+	opts?: { contentLength?: number },
+): Promise<void> {
 	const env = getEnv();
 	const aws = clientForEnv(env);
+	const headers: Record<string, string> = { 'Content-Type': contentType };
+	if (isReadableStream(body)) {
+		// Don't consume the incoming stream just to hash it — S3 accepts UNSIGNED-PAYLOAD on PUT.
+		headers['x-amz-content-sha256'] = 'UNSIGNED-PAYLOAD';
+	}
+	if (opts?.contentLength != null && Number.isFinite(opts.contentLength) && opts.contentLength >= 0) {
+		headers['Content-Length'] = String(opts.contentLength);
+	}
 	const res = await aws.fetch(objectUrl(env, bucket, key), {
 		method: 'PUT',
 		body,
-		headers: { 'Content-Type': contentType },
+		headers,
 	});
 	if (!res.ok) {
 		const t = await res.text();
