@@ -13,7 +13,7 @@
 |------|---------|
 | Dev server | `pnpm dev` (Astro dev) |
 | Preview (local Worker) | `pnpm preview` (`wrangler dev`) |
-| Deploy | `pnpm deploy` (`wrangler deploy`) |
+| Deploy | `pnpm release` (`astro build` then `wrangler deploy`) |
 | Typecheck | `pnpm typecheck` (`astro check`) |
 | Lint | `pnpm lint` (`biome check .`) |
 | Format | `pnpm format` (`biome check --write .`) |
