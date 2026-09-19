@@ -119,6 +119,45 @@ export const fsApi = {
 		return url.pathname + url.search;
 	},
 
+	async mpuCreate(bucket: string, key: string, contentType: string): Promise<string> {
+		const data = await parseJson<{ uploadId: string }>(
+			await fetch('/api/admin/fs/mpu-create', {
+				method: 'POST',
+				headers: JSON_HEADERS,
+				body: JSON.stringify({ bucket, key, contentType }),
+			}),
+		);
+		return data.uploadId;
+	},
+
+	mpuPartUrl(bucket: string, key: string, partNumber: number): string {
+		const url = new URL('/api/admin/fs/mpu-part', window.location.origin);
+		url.searchParams.set('bucket', bucket);
+		url.searchParams.set('key', key);
+		url.searchParams.set('partNumber', String(partNumber));
+		return url.pathname + url.search;
+	},
+
+	async mpuComplete(bucket: string, key: string, uploadId: string, parts: { partNumber: number; etag: string }[]): Promise<void> {
+		await parseJson(
+			await fetch('/api/admin/fs/mpu-complete', {
+				method: 'POST',
+				headers: JSON_HEADERS,
+				body: JSON.stringify({ bucket, key, uploadId, parts }),
+			}),
+		);
+	},
+
+	async mpuAbort(bucket: string, key: string, uploadId: string): Promise<void> {
+		await parseJson(
+			await fetch('/api/admin/fs/mpu-abort', {
+				method: 'POST',
+				headers: JSON_HEADERS,
+				body: JSON.stringify({ bucket, key, uploadId }),
+			}),
+		);
+	},
+
 	downloadZip(bucket: string, keys: string[], prefixes: string[]): void {
 		const form = document.createElement('form');
 		form.method = 'POST';

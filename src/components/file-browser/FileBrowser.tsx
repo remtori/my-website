@@ -16,6 +16,7 @@ import {
 	unique,
 } from './format';
 import type { Row, S3ObjectInfo, UploadItem } from './types';
+import { abortAllUploads, uploadFile } from './upload';
 
 type PromptState = {
 	title: string;
@@ -30,35 +31,6 @@ function writeUrl(bucket: string, prefix: string, replace: boolean) {
 	if (prefix) url.searchParams.set('prefix', prefix);
 	else url.searchParams.delete('prefix');
 	history[replace ? 'replaceState' : 'pushState']({ bucket, prefix }, '', url);
-}
-
-function putFile(url: string, file: File, onProgress: (ratio: number) => void): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest();
-		xhr.open('PUT', url);
-		xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-		xhr.upload.onprogress = (event) => {
-			if (event.lengthComputable && event.total > 0) onProgress(event.loaded / event.total);
-		};
-		xhr.onload = () => {
-			if (xhr.status >= 200 && xhr.status < 300) {
-				resolve();
-				return;
-			}
-			try {
-				const data: unknown = JSON.parse(xhr.responseText);
-				const message =
-					data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
-						? data.error
-						: `HTTP ${xhr.status}`;
-				reject(new Error(message));
-			} catch {
-				reject(new Error(`HTTP ${xhr.status}`));
-			}
-		};
-		xhr.onerror = () => reject(new Error('Upload failed'));
-		xhr.send(file);
-	});
 }
 
 export default function FileBrowser(props: { defaultBucket: string }) {
@@ -244,6 +216,7 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 		onCleanup(() => {
 			window.removeEventListener('popstate', onPop);
 			window.removeEventListener('keydown', onKey);
+			abortAllUploads();
 		});
 	});
 
@@ -507,7 +480,12 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 	async function uploadOne(item: UploadItem) {
 		patchUpload(item.id, { status: 'uploading', progress: 0, error: undefined });
 		try {
-			await putFile(fsApi.putUrl(bucket(), item.key), item.file, (ratio) => patchUpload(item.id, { progress: ratio }));
+			await uploadFile({
+				bucket: bucket(),
+				key: item.key,
+				file: item.file,
+				onProgress: (ratio) => patchUpload(item.id, { progress: ratio }),
+			});
 			patchUpload(item.id, { status: 'done', progress: 1 });
 		} catch (err) {
 			patchUpload(item.id, { status: 'error', error: err instanceof Error ? err.message : 'Upload failed' });

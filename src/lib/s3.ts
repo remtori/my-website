@@ -6,12 +6,13 @@ export const POSTS_PREFIX = 'mdx/blogs/';
 
 const PRESIGN_EXPIRES_SEC = 900;
 
-function clientForEnv(env: Env): AwsClient {
+function clientForEnv(env: Env, opts?: { retries?: number }): AwsClient {
 	return new AwsClient({
 		accessKeyId: env.S3_ACCESS_KEY_ID,
 		secretAccessKey: env.S3_SECRET_ACCESS_KEY,
 		service: 's3',
 		region: 'auto',
+		retries: opts?.retries,
 	});
 }
 
@@ -27,6 +28,14 @@ function objectUrl(env: Env, bucket: string, key: string): string {
 	return `${bucketRootUrl(env, bucket)}/${key.split('/').map(encodeURIComponent).join('/')}`;
 }
 
+function objectQueryUrl(env: Env, bucket: string, key: string, params: Record<string, string>): string {
+	const url = new URL(objectUrl(env, bucket, key));
+	for (const [name, value] of Object.entries(params)) {
+		url.searchParams.set(name, value);
+	}
+	return url.toString();
+}
+
 function decodeXml(s: string): string {
 	return s
 		.replace(/&lt;/g, '<')
@@ -34,6 +43,19 @@ function decodeXml(s: string): string {
 		.replace(/&quot;/g, '"')
 		.replace(/&apos;/g, "'")
 		.replace(/&amp;/g, '&');
+}
+
+function escapeXml(s: string): string {
+	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function s3XmlError(xml: string): string | null {
+	if (!/<Error[\s>]/i.test(xml)) return null;
+	const code = xml.match(/<Code>([^<]+)<\/Code>/);
+	const message = xml.match(/<Message>([^<]*)<\/Message>/);
+	if (!code) return xml.slice(0, 200);
+	const detail = message?.[1] ? `: ${decodeXml(message[1])}` : '';
+	return `S3 ${decodeXml(code[1])}${detail}`;
 }
 
 export type S3ObjectInfo = {
@@ -46,6 +68,11 @@ export type S3ListPage = {
 	prefixes: string[];
 	objects: S3ObjectInfo[];
 	nextToken?: string;
+};
+
+export type S3UploadedPart = {
+	partNumber: number;
+	etag: string;
 };
 
 export async function listBuckets(): Promise<{ buckets: string[]; fallback: boolean }> {
@@ -172,7 +199,7 @@ export async function putObject(
 	opts?: { contentLength?: number },
 ): Promise<void> {
 	const env = getEnv();
-	const aws = clientForEnv(env);
+	const aws = clientForEnv(env, isReadableStream(body) ? { retries: 0 } : undefined);
 	const headers: Record<string, string> = { 'Content-Type': contentType };
 	if (isReadableStream(body)) {
 		// Don't consume the incoming stream just to hash it — S3 accepts UNSIGNED-PAYLOAD on PUT.
@@ -189,6 +216,86 @@ export async function putObject(
 	if (!res.ok) {
 		const t = await res.text();
 		throw new Error(`S3 put failed ${res.status}: ${t.slice(0, 200)}`);
+	}
+}
+
+export async function createMultipartUpload(bucket: string, key: string, contentType: string): Promise<string> {
+	const env = getEnv();
+	const aws = clientForEnv(env);
+	const res = await aws.fetch(objectQueryUrl(env, bucket, key, { uploads: '' }), {
+		method: 'POST',
+		headers: { 'Content-Type': contentType },
+	});
+	const xml = await res.text();
+	if (!res.ok) {
+		throw new Error(`S3 create multipart failed ${res.status}: ${xml.slice(0, 200)}`);
+	}
+	const match = xml.match(/<UploadId>([^<]+)<\/UploadId>/);
+	if (!match) {
+		throw new Error('S3 create multipart returned no UploadId');
+	}
+	return decodeXml(match[1]);
+}
+
+export async function uploadMultipartPart(
+	bucket: string,
+	key: string,
+	uploadId: string,
+	partNumber: number,
+	body: BodyInit,
+	opts?: { contentLength?: number },
+): Promise<string> {
+	const env = getEnv();
+	const aws = clientForEnv(env, { retries: 0 });
+	const headers: Record<string, string> = { 'x-amz-content-sha256': 'UNSIGNED-PAYLOAD' };
+	if (opts?.contentLength != null && Number.isFinite(opts.contentLength) && opts.contentLength >= 0) {
+		headers['Content-Length'] = String(opts.contentLength);
+	}
+	const res = await aws.fetch(objectQueryUrl(env, bucket, key, { partNumber: String(partNumber), uploadId }), {
+		method: 'PUT',
+		body,
+		headers,
+	});
+	if (!res.ok) {
+		const t = await res.text();
+		throw new Error(`S3 upload part failed ${res.status}: ${t.slice(0, 200)}`);
+	}
+	const etag = res.headers.get('ETag') ?? res.headers.get('etag');
+	if (!etag) {
+		throw new Error('S3 upload part returned no ETag');
+	}
+	return etag;
+}
+
+export async function completeMultipartUpload(bucket: string, key: string, uploadId: string, parts: S3UploadedPart[]): Promise<void> {
+	const env = getEnv();
+	const aws = clientForEnv(env);
+	const sorted = [...parts].sort((a, b) => a.partNumber - b.partNumber);
+	const xml = `<CompleteMultipartUpload>${sorted
+		.map((part) => `<Part><PartNumber>${part.partNumber}</PartNumber><ETag>${escapeXml(part.etag)}</ETag></Part>`)
+		.join('')}</CompleteMultipartUpload>`;
+	const res = await aws.fetch(objectQueryUrl(env, bucket, key, { uploadId }), {
+		method: 'POST',
+		body: xml,
+		headers: { 'Content-Type': 'application/xml' },
+	});
+	const body = await res.text();
+	const embedded = s3XmlError(body);
+	if (!res.ok || embedded) {
+		throw new Error(`S3 complete multipart failed ${res.status}: ${(embedded ?? body).slice(0, 200)}`);
+	}
+	if (!/<CompleteMultipartUploadResult[\s>]/i.test(body) && !/<ETag>/i.test(body)) {
+		throw new Error('S3 complete multipart returned no result');
+	}
+}
+
+export async function abortMultipartUpload(bucket: string, key: string, uploadId: string): Promise<void> {
+	const env = getEnv();
+	const aws = clientForEnv(env);
+	const res = await aws.fetch(objectQueryUrl(env, bucket, key, { uploadId }), { method: 'DELETE' });
+	if (!res.ok && res.status !== 204) {
+		const t = await res.text();
+		throw new Error(`S3 abort multipart failed ${res.status}: ${t.slice(0, 200)}`);
 	}
 }
 
