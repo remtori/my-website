@@ -61,8 +61,9 @@ const summaryMeta = 'ml-auto font-mono text-[10px] normal-case tracking-normal t
 		</div>
 
 		<div id="image-isolation-warning" class="note note-bad mt-4 hidden">
-			The conversion engine could not start because this session is missing cross-origin isolation. Try a
-			hard refresh (Cmd/Ctrl+Shift+R) or a different browser.
+			<p class="font-semibold">The conversion engine can't start.</p>
+			<p id="image-isolation-detail" class="mt-1"></p>
+			<button id="image-isolation-reset" type="button" class="btn btn-sm mt-3">Reset and reload</button>
 		</div>
 
 		<!-- 01 / add -->

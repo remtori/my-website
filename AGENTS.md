@@ -47,6 +47,25 @@ In production these are Wrangler secrets / bindings (see `wrangler.jsonc`).
 - **Edge caching**: public GET pages (non-admin, non-api, non-`/_`) are cached via `caches.default` in production. In dev, an in-memory `Map` emulates the cache (`src/lib/runtime.dev.ts`).
 - **Cache purge is manual**: after editing content via the CMS, go to `/admin/purge` and submit the public URL(s) to evict from the edge cache. There is no automatic invalidation on CMS save.
 
+## Cross-origin isolation (do not break this)
+
+`/tools/imgconv` runs wasm-vips, which needs `SharedArrayBuffer`, which needs the document to be
+cross-origin isolated. So **every** response on this origin gets `Cross-Origin-Opener-Policy: same-origin`
+and `Cross-Origin-Embedder-Policy: require-corp` — `src/middleware.ts` for Worker responses,
+`public/_headers` for static assets, and the Vite plugin in `astro.config.mjs` for dev.
+
+Isolation is fixed when a **document** is created, and `<ClientRouter />` navigates client-side without
+ever recreating it. So one non-isolated entry point poisons the whole session: land there, click through
+to the tool, and `crossOriginIsolated` is still false. `/admin` used to be exempt, which is exactly how
+this broke — a hard refresh "fixed" it because that builds a fresh document.
+
+- Never exempt a path from isolation. There is nothing to exempt: admin loads no cross-origin
+  subresources (S3 objects are proxied through `/api/admin/fs/get`).
+- Anything embedded in a page must be same-origin or send `Cross-Origin-Resource-Policy`.
+- Documents are served `Cache-Control: no-cache` so a stored copy can never replay superseded headers.
+- Bump `VERSION` in `public/sw.js` when response headers change — cached responses keep the headers they
+  were stored with.
+
 ## Auth & admin
 
 - Single password login (`ADMIN_PASSWORD`). Session cookies are HMAC-signed with `SESSION_SECRET`; no server-side session storage.

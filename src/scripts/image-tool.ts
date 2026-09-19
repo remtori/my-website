@@ -90,6 +90,8 @@ function initImageTool(): void {
 	const pickedColor = byId<HTMLElement>('image-picked-color');
 	const resultsSection = byId<HTMLElement>('image-results');
 	const isolationWarning = byId<HTMLElement>('image-isolation-warning');
+	const isolationDetail = byId<HTMLElement>('image-isolation-detail');
+	const isolationReset = byId<HTMLButtonElement>('image-isolation-reset');
 
 	function render(): void {
 		const doneOutputs = entries.reduce((count, entry) => count + (entry.result?.outputs.length ?? 0), 0);
@@ -143,6 +145,55 @@ function initImageTool(): void {
 		activePreviewCanvas = undefined;
 		lastPreviewUrl = undefined;
 	}
+
+	function isolationDiagnosis(): string {
+		const controlled = 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null;
+		const reasons: string[] = [];
+
+		if (!self.crossOriginIsolated) {
+			reasons.push('this page is not cross-origin isolated');
+		}
+		if (typeof SharedArrayBuffer === 'undefined') {
+			reasons.push('SharedArrayBuffer is unavailable');
+		}
+		const summary = reasons.length > 0 ? `${reasons.join(', ')}.` : 'The engine reported no specific cause.';
+
+		// Isolation is fixed when the document is created and client-side routing
+		// never recreates it, so the usual residual cause is a stored document
+		// that predates the current headers. Both fixes below rebuild it.
+		const advice = controlled
+			? ' This page was opened before the current headers were in place. Reset and reload clears the stored copy and rebuilds the page from the network.'
+			: ' A hard refresh (Cmd/Ctrl+Shift+R) rebuilds the page from the network and usually restores it.';
+
+		return summary + advice;
+	}
+
+	function showIsolationWarning(): void {
+		isolationDetail.textContent = isolationDiagnosis();
+		isolationWarning.classList.remove('hidden');
+	}
+
+	// Lets someone recover without opening devtools: drop every service worker
+	// and cache for this origin, then reload straight from the network.
+	async function resetAndReload(): Promise<void> {
+		isolationReset.disabled = true;
+		isolationReset.textContent = 'Resetting…';
+		try {
+			if ('serviceWorker' in navigator) {
+				const registrations = await navigator.serviceWorker.getRegistrations();
+				await Promise.all(registrations.map((registration) => registration.unregister()));
+			}
+			if ('caches' in self) {
+				const keys = await caches.keys();
+				await Promise.all(keys.map((key) => caches.delete(key)));
+			}
+		} catch {
+			/* reload anyway — a partial reset is still worth retrying */
+		}
+		location.reload();
+	}
+
+	isolationReset.addEventListener('click', () => void resetAndReload());
 
 	function setEngineStatus(message: string, ok = true): void {
 		engineStatus.textContent = message;
@@ -236,7 +287,7 @@ function initImageTool(): void {
 		if (processing || entries.length === 0) return;
 		if (!crossOriginIsolated) {
 			setEngineStatus('engine unavailable', false);
-			isolationWarning.classList.remove('hidden');
+			showIsolationWarning();
 			return;
 		}
 
@@ -368,7 +419,7 @@ function initImageTool(): void {
 		setEngineStatus('engine ready');
 	} else {
 		setEngineStatus('engine unavailable', false);
-		isolationWarning.classList.remove('hidden');
+		showIsolationWarning();
 	}
 
 	fileInput.addEventListener('change', () => {

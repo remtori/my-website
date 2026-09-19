@@ -25,13 +25,48 @@ function withCrossOriginIsolation(response: Response): Response {
 	});
 }
 
-function skipIsolation(url: URL): boolean {
-	return url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin');
+// Every document on this origin is isolated, with no exceptions.
+//
+// Isolation is fixed when a document is created, and <ClientRouter /> navigates
+// client-side — the document is never recreated. So a single non-isolated entry
+// point (/admin used to be one) leaves `crossOriginIsolated` false for the whole
+// session, including after navigating to /tools/imgconv, whose wasm engine needs
+// SharedArrayBuffer. Admin loads nothing cross-origin (S3 objects are proxied
+// through /api/admin/fs/get, same-origin), so there is nothing to exempt.
+
+// Matches the edge TTL the zone applied before this was set explicitly, so the
+// stored copy keeps behaving as it did. Purging stays manual (see /admin).
+const EDGE_TTL_SECONDS = 14400;
+
+function isHtml(response: Response): boolean {
+	return (response.headers.get('Content-Type') ?? '').includes('text/html');
 }
 
-function isolateIfNeeded(url: URL, response: Response): Response {
-	if (skipIsolation(url)) return response;
-	return withCrossOriginIsolation(response);
+function withCacheControl(response: Response, value: string): Response {
+	const headers = new Headers(response.headers);
+	headers.set('Cache-Control', value);
+
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers,
+	});
+}
+
+// The cross-origin isolation headers and the hashed asset URLs both travel with
+// the document, so a browser replaying a stale copy runs the old policy for as
+// long as that copy stays fresh. `no-cache` still stores it — it just forces a
+// revalidation, so the document can never drift from the headers it needs.
+function withDocumentRevalidation(response: Response): Response {
+	if (!isHtml(response)) return response;
+	return withCacheControl(response, 'no-cache');
+}
+
+// The copy kept at the edge keeps a real TTL, otherwise caches.default would
+// treat it as immediately stale and every request would fall through to origin.
+function forEdgeCache(response: Response): Response {
+	if (!isHtml(response)) return response;
+	return withCacheControl(response, `public, max-age=${EDGE_TTL_SECONDS}`);
 }
 
 function requiresAdminSession(url: URL): boolean {
@@ -56,13 +91,14 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		if (hit) {
 			// Rebuild with mutable headers — Astro's render loop mutates
 			// response headers (e.g. attaching cookies / deleting ROUTE_TYPE_HEADER).
-			return isolateIfNeeded(
-				url,
-				new Response(hit.body, {
-					status: hit.status,
-					statusText: hit.statusText,
-					headers: new Headers(hit.headers),
-				}),
+			return withDocumentRevalidation(
+				withCrossOriginIsolation(
+					new Response(hit.body, {
+						status: hit.status,
+						statusText: hit.statusText,
+						headers: new Headers(hit.headers),
+					}),
+				),
 			);
 		}
 	}
@@ -73,24 +109,23 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		const ok = await verifySessionValue(raw, env.SESSION_SECRET);
 		if (!ok) {
 			if (url.pathname.startsWith('/api/admin/')) {
-				return isolateIfNeeded(
-					url,
+				return withCrossOriginIsolation(
 					new Response('Unauthorized', {
 						status: 401,
 						headers: { 'Content-Type': 'text/plain; charset=utf-8' },
 					}),
 				);
 			}
-			return isolateIfNeeded(url, Response.redirect(new URL('/admin/login', url), 302));
+			return withCrossOriginIsolation(Response.redirect(new URL('/admin/login', url), 302));
 		}
 	}
 
-	const response = isolateIfNeeded(url, await next());
+	const response = withCrossOriginIsolation(await next());
 
 	if (isPublicCacheableGet(url, context.request.method) && response.ok) {
 		const cacheReq = cacheablePublicRequest(context.request);
-		await getCache().put(cacheReq, response.clone());
+		await getCache().put(cacheReq, forEdgeCache(response.clone()));
 	}
 
-	return response;
+	return withDocumentRevalidation(response);
 };

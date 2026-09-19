@@ -42,10 +42,8 @@ function wasmVipsRuntimeAssets() {
 		configureServer(server) {
 			server.middlewares.use((req, res, next) => {
 				const url = new URL(req.url ?? '/', 'http://localhost');
-				const skipIsolation = url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin');
-				if (!skipIsolation) {
-					setCrossOriginIsolationHeaders(res);
-				}
+				// Isolate everything, matching src/middleware.ts — see the note there.
+				setCrossOriginIsolationHeaders(res);
 
 				if (!url.pathname.startsWith(wasmVipsPublicPath)) {
 					next();
