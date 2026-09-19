@@ -10,6 +10,6 @@ const defaultBucket = getEnv().S3_BUCKET ?? '';
 
 <AdminLayout title="Files" full>
 	<FileBrowser client:only="solid-js" defaultBucket={defaultBucket}>
-		<p slot="fallback" class="font-mono text-xs text-text-muted">loading file browser…</p>
+		<p slot="fallback" class="eyebrow p-6">Loading file browser…</p>
 	</FileBrowser>
 </AdminLayout>

@@ -10,7 +10,18 @@ interface Props {
 }
 
 const { title, description = 'Personal site', wide = false, fluid = false } = Astro.props;
-const isAdmin = Astro.url.pathname.startsWith('/admin');
+const pathname = Astro.url.pathname;
+
+const nav = [
+	{ href: '/', label: 'Home' },
+	{ href: '/blog', label: 'Blog' },
+	{ href: '/tools', label: 'Tools' },
+	{ href: '/archive', label: 'Archive' },
+	{ href: '/about', label: 'About' },
+];
+
+const current = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+const onAdmin = pathname.startsWith('/admin');
 ---
 
 <!doctype html>
@@ -19,7 +30,7 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
-		<meta name="theme-color" content="#0a0d12" />
+		<meta name="theme-color" content="#ffffff" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-title" content="Remtori" />
 		<title>Remtori - {title}</title>
@@ -35,37 +46,77 @@ const isAdmin = Astro.url.pathname.startsWith('/admin');
 			}
 		</script>
 	</head>
-	<body class="min-h-screen bg-bg-base text-text-primary font-body antialiased">
-		<header class="sticky top-0 z-50 border-b-2 border-accent bg-bg-base">
-			<nav class="mx-auto flex max-w-3xl items-center gap-6 px-4 py-4 text-sm">
-				<a href="/" class="font-display text-xl font-bold text-accent hover:text-accent-light transition" transition:animate="none">
+	<body class="flex min-h-screen flex-col bg-bg-base font-body text-text-primary antialiased">
+		<a
+			href="#main"
+			class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+		>
+			Skip to content
+		</a>
+
+		<header class="sticky top-0 z-50 border-b border-border bg-bg-base/90 backdrop-blur-md">
+			<div class="mx-auto flex max-w-5xl items-center gap-5 px-5 py-3">
+				<a
+					href="/"
+					class="shrink-0 font-display text-[0.9375rem] font-bold tracking-tight text-text-primary transition hover:text-accent"
+					transition:animate="none"
+				>
 					Remtori
 				</a>
-				<div class="flex-1"></div>
-				<a href="/" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
-					Home
-				</a>
-				<a href="/blog" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
-					Blog
-				</a>
-				<a href="/tools" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
-					Tools
-				</a>
-				<a href="/archive" class="text-text-secondary hover:text-text-primary transition underline-offset-4 hover:underline" transition:animate="none">
-					Archive
-				</a>
-				{isAdmin && (
-					<a href="/admin" class="border border-accent bg-accent/10 px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider text-accent">
+
+				<nav class="ml-auto flex items-center gap-4 sm:gap-6">
+					{nav.map((item) => (
+						<a
+							href={item.href}
+							class="navlink hidden sm:inline"
+							aria-current={current(item.href) ? 'page' : undefined}
+							transition:animate="none"
+						>
+							{item.label}
+						</a>
+					))}
+
+					<!-- Mobile: the primary two only, so the bar stays readable. -->
+					<a href="/blog" class="navlink sm:hidden" aria-current={current('/blog') ? 'page' : undefined} transition:animate="none">
+						Blog
+					</a>
+					<a href="/tools" class="navlink sm:hidden" aria-current={current('/tools') ? 'page' : undefined} transition:animate="none">
+						Tools
+					</a>
+
+					<a
+						href="/admin"
+						class="btn btn-sm"
+						aria-current={onAdmin ? 'page' : undefined}
+						transition:animate="none"
+					>
 						Admin
 					</a>
-				)}
-			</nav>
+				</nav>
+			</div>
 		</header>
-		<main class:list={[
-			fluid ? "mx-auto max-w-[90rem] px-4 py-6" : wide ? "mx-auto max-w-6xl px-4 py-12" : "mx-auto max-w-3xl px-4 py-12",
-			isAdmin && !wide && !fluid && "border-l-2 border-accent/60 pl-5",
-		]}>
+
+		<main
+			id="main"
+			class:list={[
+				'flex-1',
+				fluid
+					? 'mx-auto w-full max-w-[100rem] px-4 py-6'
+					: wide
+						? 'mx-auto w-full max-w-5xl px-5 py-12'
+						: 'mx-auto w-full max-w-3xl px-5 py-12',
+			]}
+		>
 			<slot />
 		</main>
+
+		<footer class="mt-8 border-t border-border">
+			<div class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-6 text-[13px] text-text-muted">
+				<span>&copy; {new Date().getFullYear()} Remtori</span>
+				<a href="/about" class="link" transition:animate="none">About</a>
+				<a href="/admin" class="link" transition:animate="none">Admin</a>
+				<span class="ml-auto font-mono text-[11px]">Astro on Cloudflare Workers</span>
+			</div>
+		</footer>
 	</body>
 </html>

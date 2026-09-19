@@ -9,84 +9,34 @@ interface Props {
 
 const { title, description, full = false } = Astro.props;
 const pathname = Astro.url.pathname;
-const onDashboard = pathname === '/admin' || pathname.startsWith('/admin/edit');
-const onFiles = pathname.startsWith('/admin/files');
+
+const sections = [
+	{ href: '/admin', label: 'Dashboard', active: pathname === '/admin' || pathname.startsWith('/admin/edit') },
+	{ href: '/admin/files', label: 'Files', active: pathname.startsWith('/admin/files') },
+];
 ---
 
 <Layout title={title} description={description} wide={!full} fluid={full}>
-	<div class:list={[full ? 'px-0 py-4' : 'mx-auto max-w-6xl px-4 py-12 lg:py-20']}>
-		<div class:list={['grid lg:grid-cols-12', full ? 'gap-8 lg:gap-10' : 'gap-12 lg:gap-16']}>
-			<!-- Left sidebar -->
-			<div class:list={['animate-slide-in-left-soft space-y-10', full ? 'lg:col-span-3' : 'lg:col-span-4']}>
-				<div class="space-y-5">
-					<h1 class:list={['font-display font-bold tracking-tighter text-text-primary', full ? 'text-4xl sm:text-5xl' : 'text-5xl sm:text-6xl']}>
-						ADMIN
-					</h1>
-					<p class="font-mono text-sm text-accent">// content management</p>
-				</div>
+	<div class:list={['flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-border pb-4', full ? 'mb-5' : 'mb-10']}>
+		<span class="eyebrow eyebrow-accent">Admin</span>
 
-				<nav class="space-y-3 font-mono text-sm">
-					<a
-						href="/admin"
-						class:list={[
-							'group flex items-center gap-2 transition hover:translate-x-1 hover:text-accent',
-							onDashboard ? 'text-accent' : 'text-text-secondary',
-						]}
-						transition:animate="none"
-					>
-						<span class="text-text-muted">$</span>
-						<span>cd</span>
-						<span
-							class:list={[
-								onDashboard ? 'text-accent-light' : 'text-accent transition group-hover:text-accent-light',
-							]}
-						>
-							~/dashboard
-						</span>
-					</a>
-					<a
-						href="/admin/files"
-						class:list={[
-							'group flex items-center gap-2 transition hover:translate-x-1 hover:text-accent',
-							onFiles ? 'text-accent' : 'text-text-secondary',
-						]}
-						transition:animate="none"
-					>
-						<span class="text-text-muted">$</span>
-						<span>cd</span>
-						<span
-							class:list={[
-								onFiles ? 'text-accent-light' : 'text-accent transition group-hover:text-accent-light',
-							]}
-						>
-							~/files
-						</span>
-					</a>
-					<a
-						href="/"
-						class="group flex items-center gap-2 text-text-secondary transition hover:translate-x-1 hover:text-accent"
-						transition:animate="none"
-					>
-						<span class="text-text-muted">$</span>
-						<span>cd</span>
-						<span class="text-accent transition group-hover:text-accent-light">~/home</span>
-					</a>
-				</nav>
+		<nav class="flex items-center gap-5">
+			{sections.map((section) => (
+				<a
+					href={section.href}
+					class="navlink"
+					aria-current={section.active ? 'page' : undefined}
+					transition:animate="none"
+				>
+					{section.label}
+				</a>
+			))}
+		</nav>
 
-				<form method="POST" action="/api/admin/logout">
-					<button
-						type="submit"
-						class="font-mono text-xs text-white underline underline-offset-4 transition hover:text-text-secondary"
-					>
-						Sign out
-					</button>
-				</form>
-			</div>
-
-			<!-- Right content -->
-			<div class:list={['space-y-10', full ? 'lg:col-span-9' : 'lg:col-span-8']}>
-				<slot />
-			</div>
-		</div>
+		<form method="POST" action="/api/admin/logout" class="ml-auto">
+			<button type="submit" class="btn btn-sm">Sign out</button>
+		</form>
 	</div>
+
+	<slot />
 </Layout>

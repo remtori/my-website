@@ -102,8 +102,7 @@ function initImageTool(): void {
 		downloadAllButton.textContent = zipping ? 'zipping...' : doneOutputs === 1 ? 'download' : 'download all (.zip)';
 
 		if (entries.length === 0) {
-			queueList.innerHTML =
-				'<li class="border-l-2 border-border py-4 pl-4 font-mono text-xs text-text-muted">// drop images above — conversion starts automatically</li>';
+			queueList.innerHTML = '<li class="py-8 text-center text-text-muted">Drop images above — conversion starts automatically.</li>';
 			return;
 		}
 
@@ -138,8 +137,8 @@ function initImageTool(): void {
 		previewImage.removeAttribute('src');
 		previewImage.classList.add('hidden');
 		previewEmpty.classList.remove('hidden');
-		metadataPanel.innerHTML = '<p class="font-mono text-xs text-text-muted">// metadata appears after processing</p>';
-		palettePanel.innerHTML = '<p class="font-mono text-xs text-text-muted">// extracting</p>';
+		metadataPanel.innerHTML = '<p class="text-sm text-text-muted">Metadata appears after processing.</p>';
+		palettePanel.innerHTML = '<p class="text-sm text-text-muted">Extracting…</p>';
 		pickedColor.textContent = '#------';
 		activePreviewCanvas = undefined;
 		lastPreviewUrl = undefined;
@@ -382,11 +381,11 @@ function initImageTool(): void {
 	document.addEventListener('dragenter', (event) => {
 		if (!event.dataTransfer?.types.includes('Files')) return;
 		dragDepth += 1;
-		dropZone.classList.add('border-accent', 'bg-bg-surface');
+		dropZone.classList.add('is-dragging');
 	});
 	document.addEventListener('dragleave', () => {
 		dragDepth = Math.max(0, dragDepth - 1);
-		if (dragDepth === 0) dropZone.classList.remove('border-accent', 'bg-bg-surface');
+		if (dragDepth === 0) dropZone.classList.remove('is-dragging');
 	});
 	document.addEventListener('dragover', (event) => {
 		event.preventDefault();
@@ -394,7 +393,7 @@ function initImageTool(): void {
 	document.addEventListener('drop', (event) => {
 		event.preventDefault();
 		dragDepth = 0;
-		dropZone.classList.remove('border-accent', 'bg-bg-surface');
+		dropZone.classList.remove('is-dragging');
 		if (event.dataTransfer?.files) addFiles(event.dataTransfer.files);
 	});
 	document.addEventListener('paste', (event) => {
@@ -642,14 +641,14 @@ function renderEntry(entry: QueueEntry): string {
 
 	const downloads = entry.result
 		? `<div class="mt-2 flex flex-wrap items-center gap-2">
-				<a class="inline-flex items-center gap-1.5 bg-accent px-3 py-1.5 font-mono text-xs font-bold text-bg-base transition hover:bg-accent-light" href="${primary?.url}" download="${escapeHtml(primary?.name ?? '')}">↓ ${escapeHtml(primary?.name ?? '')} · ${formatBytes(primary?.size ?? 0)}</a>
+				<a class="btn btn-sm btn-primary normal-case" href="${primary?.url}" download="${escapeHtml(primary?.name ?? '')}">↓ ${escapeHtml(primary?.name ?? '')} · ${formatBytes(primary?.size ?? 0)}</a>
 				${extras
 					.map(
 						(output) =>
-							`<a class="border border-border px-2 py-1.5 font-mono text-[11px] text-accent transition hover:border-accent" href="${output.url}" download="${escapeHtml(output.name)}">↓ ${escapeHtml(output.name)} · ${formatBytes(output.size)}</a>`,
+							`<a class="btn btn-sm normal-case" href="${output.url}" download="${escapeHtml(output.name)}">↓ ${escapeHtml(output.name)} · ${formatBytes(output.size)}</a>`,
 					)
 					.join('')}
-				<button type="button" data-preview-entry="${entry.id}" class="border border-border px-2 py-1.5 font-mono text-[11px] text-text-secondary transition hover:border-accent hover:text-accent">preview</button>
+				<button type="button" data-preview-entry="${entry.id}" class="btn btn-sm">Preview</button>
 			</div>`
 		: '';
 
@@ -663,19 +662,19 @@ function renderEntry(entry: QueueEntry): string {
 	const removeButton =
 		entry.status === 'processing'
 			? ''
-			: `<button type="button" data-remove-entry="${entry.id}" aria-label="Remove ${escapeHtml(entry.file.name)}" class="shrink-0 border border-transparent px-2 py-1 font-mono text-sm text-text-muted transition hover:border-error hover:text-error">✕</button>`;
+			: `<button type="button" data-remove-entry="${entry.id}" aria-label="Remove ${escapeHtml(entry.file.name)}" class="shrink-0 cursor-pointer border border-transparent px-2 py-1 font-mono text-sm text-text-muted transition hover:border-error hover:text-error">✕</button>`;
 
-	return `<li class="flex items-start gap-3 border-l-2 ${entry.status === 'error' ? 'border-error' : 'border-border'} py-4 pl-3 pr-1 transition hover:border-l-accent">
-		<div class="relative h-12 w-12 shrink-0 overflow-hidden border border-border bg-bg-muted">
+	return `<li class="obj obj-flag flex items-start gap-3.5 !pl-5" style="--sigil: ${entry.status === 'error' ? 'var(--color-error)' : entry.status === 'done' ? 'var(--color-success)' : 'var(--color-accent)'}">
+		<div class="relative h-14 w-14 shrink-0 overflow-hidden border border-border bg-bg-muted">
 			<span class="grid h-full w-full place-items-center font-mono text-[9px] text-text-muted">img</span>
 			<img data-thumb src="${entry.thumbUrl}" alt="" class="absolute inset-0 h-full w-full object-cover" />
 		</div>
 		<div class="min-w-0 flex-1">
 			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-				<span class="min-w-0 max-w-full truncate font-display text-sm font-semibold text-text-primary">${escapeHtml(entry.file.name)}</span>
+				<span class="obj-title min-w-0 max-w-full truncate">${escapeHtml(entry.file.name)}</span>
 				<span class="font-mono text-[11px] text-text-muted">${formatBytes(entry.file.size)}${primary ? ` → ${formatBytes(primary.size)}` : ''}</span>
 				${savingsBadge(entry)}
-				<span class="font-mono text-[11px] uppercase ${statusTone[entry.status]}${entry.status === 'processing' ? ' animate-pulse' : ''}">${statusLabel[entry.status]}</span>
+				<span class="eyebrow ${statusTone[entry.status]}${entry.status === 'processing' ? ' animate-pulse' : ''}">${statusLabel[entry.status]}</span>
 			</div>
 			${stage}
 			${meter}
@@ -694,12 +693,12 @@ function renderMetadata(result: ClientResult): string {
 						`<div class="grid gap-2 border-b border-border py-2 sm:grid-cols-[180px_minmax(0,1fr)]"><dt class="truncate font-mono text-[11px] text-text-muted">${escapeHtml(field.name)}</dt><dd class="break-words font-mono text-[11px] text-text-secondary">${escapeHtml(field.value)}</dd></div>`,
 				)
 				.join('')
-		: '<p class="font-mono text-xs text-text-muted">// no metadata fields reported</p>';
+		: '<p class="text-sm text-text-muted">No metadata fields reported.</p>';
 
 	return `<div class="space-y-4">
 		<div class="grid gap-3 font-mono text-xs text-text-secondary sm:grid-cols-2">
-			<div class="border border-border px-3 py-2"><span class="text-text-muted">input</span> ${result.input.width}x${result.input.height} ${escapeHtml(result.input.interpretation)}</div>
-			<div class="border border-border px-3 py-2"><span class="text-text-muted">output</span> ${result.output.width}x${result.output.height} ${escapeHtml(result.output.interpretation)}</div>
+			<div class="border border-border px-3 py-2"><span class="eyebrow">input</span> ${result.input.width}x${result.input.height} ${escapeHtml(result.input.interpretation)}</div>
+			<div class="border border-border px-3 py-2"><span class="eyebrow">output</span> ${result.output.width}x${result.output.height} ${escapeHtml(result.output.interpretation)}</div>
 		</div>
 		<dl>${rows}</dl>
 	</div>`;
@@ -741,7 +740,7 @@ async function renderPalette(url: string, count: number): Promise<void> {
 	panel.innerHTML = colors
 		.map(
 			(color) =>
-				`<button type="button" class="group flex items-center gap-2 border border-border px-2 py-1 font-mono text-[11px] text-text-secondary transition hover:border-accent" data-color="${color}"><span class="h-5 w-5 border border-border-strong" style="background:${color}"></span>${color}</button>`,
+				`<button type="button" class="group flex cursor-pointer items-center gap-2 border border-border px-2 py-1.5 font-mono text-[11px] text-text-secondary transition hover:border-accent hover:text-accent" data-color="${color}"><span class="h-5 w-5 shrink-0 border border-border-strong" style="background:${color}"></span>${color}</button>`,
 		)
 		.join('');
 

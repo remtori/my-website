@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import EntryRow from '@/components/EntryRow.astro';
+import ObjectRow from '@/components/ObjectRow.astro';
 import PageHeader from '@/components/PageHeader.astro';
 import SearchBar from '@/components/SearchBar.astro';
 import { tools } from '@/lib/tools';
@@ -9,67 +9,54 @@ export const prerender = false;
 ---
 
 <Layout title="Tools">
-	<PageHeader
-		title="Tools"
-		subtitle="Browser-only utilities. No server, no data sent anywhere."
-		size="lg"
-	/>
+	<PageHeader title="Tools" subtitle="Browser-only utilities. No server, no data sent anywhere." size="lg" />
 
-	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
-		<SearchBar id="tool-search" placeholder="filter utilities..." />
+	<div class="rise mt-12" style="--i: 1">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<span class="eyebrow">{tools.length} available</span>
+			<div class="w-full sm:w-72"><SearchBar id="tool-search" placeholder="Filter tools" /></div>
+		</div>
 
-		<ul id="tool-list" class="space-y-0">
+		<ul class="mt-6 border-t border-border">
 			{
-				tools.map((tool, i) => (
-					<li
-						class:list={[
-							'animate-fade-in-up border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent',
-							i === 0 ? 'animate-delay-100' : i === 1 ? 'animate-delay-200' : i === 2 ? 'animate-delay-300' : 'animate-delay-400',
-						]}
-					>
-						<EntryRow
-							href={tool.href}
-							prefix=">"
-							wrapperClass="tool-row"
-							dataAttrs={{ 'data-name': tool.name, 'data-desc': tool.desc }}
-						>
-							<span class="w-28 shrink-0 font-mono text-sm font-semibold text-text-primary transition group-hover:text-accent">
-								{tool.name}
-							</span>
-							<span class="flex-1 truncate font-mono text-xs text-text-muted">{tool.desc}</span>
-						</EntryRow>
+				tools.map((tool) => (
+					<li class="tool-row" data-name={tool.name} data-desc={tool.desc}>
+						<ObjectRow href={tool.href} title={tool.name} desc={tool.desc} tag="Tool" />
 					</li>
 				))
 			}
-			<li class="tool-empty hidden border-l-2 border-border py-5 pl-4">
-				<p class="font-mono text-xs text-text-muted">// no utilities matched your query</p>
+			<li class="tool-empty hidden py-10">
+				<p class="text-lg text-text-secondary">No tools matched that filter.</p>
 			</li>
 		</ul>
-
-		<div class="font-mono text-xs text-text-muted">
-			/* {tools.length} utility available */
-		</div>
 	</div>
 
 	<script is:inline>
 		(function () {
-			const input = document.getElementById('tool-search');
-			const rows = document.querySelectorAll('.tool-row');
-			const empty = document.querySelector('.tool-empty');
-			if (!input || !empty) return;
+			function initToolSearch() {
+				const input = document.getElementById('tool-search');
+				const rows = document.querySelectorAll('.tool-row');
+				const empty = document.querySelector('.tool-empty');
+				if (!input || !empty) return;
+				if (input.dataset.toolSearchReady === 'true') return;
+				input.dataset.toolSearchReady = 'true';
 
-			input.addEventListener('input', function () {
-				const q = this.value.toLowerCase().trim();
-				let visible = 0;
-				rows.forEach(function (row) {
-					const name = (row.getAttribute('data-name') || '').toLowerCase();
-					const desc = (row.getAttribute('data-desc') || '').toLowerCase();
-					const match = name.includes(q) || desc.includes(q);
-					row.parentElement.style.display = match ? '' : 'none';
-					if (match) visible++;
+				input.addEventListener('input', function () {
+					const q = this.value.toLowerCase().trim();
+					let visible = 0;
+					rows.forEach(function (row) {
+						const name = (row.getAttribute('data-name') || '').toLowerCase();
+						const desc = (row.getAttribute('data-desc') || '').toLowerCase();
+						const match = name.includes(q) || desc.includes(q);
+						row.style.display = match ? '' : 'none';
+						if (match) visible++;
+					});
+					empty.style.display = visible === 0 ? 'block' : 'none';
 				});
-				empty.style.display = visible === 0 ? '' : 'none';
-			});
+			}
+
+			document.addEventListener('astro:page-load', initToolSearch);
+			initToolSearch();
 		})();
 	</script>
 </Layout>

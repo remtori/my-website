@@ -1,0 +1,30 @@
+---
+interface Props {
+	href: string;
+	title: string;
+	meta?: string;
+	desc?: string;
+	tag?: string;
+	dataAttrs?: Record<string, string>;
+	class?: string;
+}
+
+const { href, title, meta, desc, tag, dataAttrs, class: className } = Astro.props;
+---
+
+<a href={href} class:list={['obj group', className]} {...dataAttrs} transition:animate="none">
+	<span class="flex items-baseline gap-3">
+		<span class="obj-title min-w-0 flex-1 truncate">{title}</span>
+		{tag ? <span class="tag hidden sm:inline-block">{tag}</span> : null}
+		{meta ? <span class="obj-meta shrink-0">{meta}</span> : null}
+	</span>
+
+	{
+		desc ? (
+			<span class="mt-1 flex items-baseline gap-3">
+				<span class="obj-desc min-w-0 flex-1">{desc}</span>
+				{tag ? <span class="tag sm:hidden">{tag}</span> : null}
+			</span>
+		) : null
+	}
+</a>

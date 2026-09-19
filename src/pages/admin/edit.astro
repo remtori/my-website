@@ -1,6 +1,5 @@
 ---
 import AdminLayout from '@/layouts/AdminLayout.astro';
-import PageHeader from '@/components/PageHeader.astro';
 import { getObjectText } from '@/lib/s3';
 
 export const prerender = false;
@@ -24,72 +23,73 @@ if (key) {
 ---
 
 <AdminLayout title={isNew ? 'New MDX' : 'Edit MDX'}>
-	<PageHeader title={isNew ? 'New MDX object' : 'Edit'}>
+	<header class="rise">
+		<a href="/admin" class="eyebrow transition hover:text-accent" transition:animate="none">
+			&larr; Dashboard
+		</a>
+		<h1 class="u-wide mt-4 text-2xl text-text-primary sm:text-3xl">
+			{isNew ? 'New object' : 'Edit'}
+		</h1>
 		{isNew ? (
-			<p slot="subtitle" class="text-sm text-text-secondary">Create a new post or page in S3.</p>
+			<p class="mt-3 text-[15px] text-text-secondary">Create a new post or page in S3.</p>
 		) : (
-			<p class="font-mono text-sm text-text-muted">{key}</p>
+			<p class="mt-3 break-all font-mono text-sm text-text-muted">{key}</p>
 		)}
-	</PageHeader>
+	</header>
 
-	{saved ? <p class="mt-5 border border-success/30 bg-success/5 px-4 py-3 font-mono text-sm text-success">Saved to S3. Purge cache for the public URL if needed.</p> : null}
+	{saved ? (
+		<p class="note note-ok mt-6">Saved to S3. Purge cache for the public URL if needed.</p>
+	) : null}
 
-	<form method="POST" action="/api/admin/cms-save" class="animate-fade-in-up animate-delay-100 mt-8 space-y-5">
+	<form method="POST" action="/api/admin/cms-save" class="rise mt-10 space-y-6" style="--i: 1">
 		{!isNew ? <input type="hidden" name="key" value={key} /> : null}
 
 		{isNew ? (
 			<>
-				<label class="block text-sm text-text-secondary">
-					<span class="mb-1.5 block font-medium">Type</span>
-					<select
-						name="type"
-						id="type-select"
-						class="w-full border border-border bg-bg-base px-4 py-3 text-sm text-text-primary outline-none transition focus:border-accent"
-					>
-						<option value="blog">Blog post</option>
-						<option value="page">Page</option>
-					</select>
-				</label>
-
-				<label class="block text-sm text-text-secondary">
-					<span class="mb-1.5 block font-medium">Title</span>
-					<input
-						name="title"
-						id="title-input"
-						required
-						placeholder="My new post"
-						class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
-					/>
-				</label>
+				<div class="grid gap-6 sm:grid-cols-[12rem_minmax(0,1fr)]">
+					<div>
+						<label class="label" for="type-select">Type</label>
+						<select name="type" id="type-select" class="field">
+							<option value="blog">Blog post</option>
+							<option value="page">Page</option>
+						</select>
+					</div>
+					<div>
+						<label class="label" for="title-input">Title</label>
+						<input name="title" id="title-input" required placeholder="My new post" class="field" />
+					</div>
+				</div>
 
 				<p class="font-mono text-xs text-text-muted">
-					Key will be: <code id="derived-key" class="bg-bg-subtle px-2 py-0.5 font-mono text-accent">mdx/blogs/{new Date().toISOString().slice(0, 10)}-my-new-post.mdx</code>
+					Key:{' '}
+					<code id="derived-key" class="bg-bg-subtle px-2 py-1 text-accent-light">
+						mdx/blogs/{new Date().toISOString().slice(0, 10)}-my-new-post.mdx
+					</code>
 				</p>
 			</>
 		) : null}
 
-		<label class="block text-sm text-text-secondary">
-			<span class="mb-1.5 block font-medium">Content</span>
+		<div>
+			<label class="label" for="content-input">Content</label>
 			<textarea
+				id="content-input"
 				name="content"
 				required
-				rows={isNew ? 18 : 22}
-				class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-sm text-text-primary outline-none transition focus:border-accent"
+				rows={isNew ? 20 : 26}
+				spellcheck="false"
+				class="field resize-y leading-relaxed"
 			>{
 				isNew
 					? `---\ntitle: New post\ndate: ${new Date().toISOString().slice(0, 10)}\n---\n\nHello from **markdown**.`
 					: content
 			}</textarea>
-		</label>
+		</div>
 
-		<div class="flex flex-wrap items-center gap-4 pt-1">
-			<button
-				type="submit"
-				class="bg-accent px-6 py-3 font-display font-bold text-bg-base transition hover:bg-accent-light"
-			>
-				Save
-			</button>
-			<a href="/admin" class="font-mono text-xs text-text-muted underline underline-offset-4 transition hover:text-text-secondary">&larr; Back to list</a>
+		<div class="flex flex-wrap items-center gap-5 border-t border-border pt-6">
+			<button type="submit" class="btn btn-primary">Save</button>
+			<a href="/admin" class="eyebrow transition hover:text-accent" transition:animate="none">
+				&larr; Back to list
+			</a>
 		</div>
 	</form>
 

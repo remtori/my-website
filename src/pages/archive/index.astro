@@ -1,5 +1,5 @@
 ---
-import EntryRow from '@/components/EntryRow.astro';
+import ObjectRow from '@/components/ObjectRow.astro';
 import PageHeader from '@/components/PageHeader.astro';
 import SearchBar from '@/components/SearchBar.astro';
 import Layout from '@/layouts/Layout.astro';
@@ -15,42 +15,40 @@ export const prerender = false;
 		size="lg"
 	/>
 
-	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
-		<SearchBar id="archive-search" placeholder="filter archived projects..." />
+	<div class="rise mt-12" style="--i: 1">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<span class="eyebrow">
+				{archiveItems.length} artifact{archiveItems.length === 1 ? '' : 's'}
+			</span>
+			<div class="w-full sm:w-72">
+				<SearchBar id="archive-search" placeholder="Filter archive" />
+			</div>
+		</div>
 
-		<ul id="archive-list" class="space-y-0">
+		<ul class="mt-6 border-t border-border">
 			{
-				archiveItems.map((item, i) => (
+				archiveItems.map((item) => (
 					<li
-						class:list={[
-							'archive-row border-l-2 border-border py-5 pl-4 transition-all hover:border-l-accent hover:bg-bg-surface/50',
-							i === 0 ? 'animate-fade-in-up animate-delay-100' : 'animate-fade-in-up animate-delay-200',
-						]}
+						class="archive-row"
 						data-title={item.title}
 						data-description={item.description}
 						data-kind={item.kind}
 					>
-						<EntryRow href={item.href} prefix=">" wrapperClass="items-start" dataAttrs={{ 'data-astro-reload': 'true' }}>
-							<span class="w-24 shrink-0 font-mono text-xs text-text-muted">{item.date}</span>
-							<span class="min-w-0 flex-1">
-								<span class="block font-display text-lg font-semibold text-accent transition group-hover:text-accent-light">
-									{item.title}
-								</span>
-								<span class="mt-1 block font-mono text-xs leading-relaxed text-text-muted">{item.description}</span>
-							</span>
-							<span class="shrink-0 font-mono text-[10px] uppercase text-text-muted">{item.kind}</span>
-						</EntryRow>
+						<ObjectRow
+							href={item.href}
+							title={item.title}
+							meta={item.date}
+							desc={item.description}
+							tag={item.kind}
+							dataAttrs={{ 'data-astro-reload': 'true' }}
+						/>
 					</li>
 				))
 			}
-			<li id="archive-empty" class="hidden border-l-2 border-border py-5 pl-4">
-				<p class="font-mono text-xs text-text-muted">// no archived projects matched your query</p>
+			<li id="archive-empty" class="hidden py-10">
+				<p class="text-lg text-text-secondary">No artifacts matched that filter.</p>
 			</li>
 		</ul>
-
-		<div class="font-mono text-xs text-text-muted">
-			/* {archiveItems.length} archived artifact{archiveItems.length === 1 ? '' : 's'} */
-		</div>
 	</div>
 
 	<script is:inline>

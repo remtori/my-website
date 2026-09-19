@@ -516,15 +516,15 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 		return `/admin/edit?key=${encodeURIComponent(s.id)}`;
 	};
 
-	const btn =
-		'cursor-pointer border border-border bg-bg-surface px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-text-secondary transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40';
+	const btn = 'btn btn-sm';
 
 	return (
-		<div class="flex h-[calc(100dvh-9rem)] min-h-[36rem] flex-col border border-border bg-bg-muted">
-			<div class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border px-3 py-2">
+		<div class="flex h-[calc(100dvh-11rem)] min-h-[34rem] flex-col border border-border bg-bg-muted">
+			{/* Location: bucket + path */}
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border bg-bg-surface/40 px-4 py-2.5">
 				<select
 					ref={bucketSelect}
-					class="max-w-[12rem] shrink-0 border border-border bg-bg-base px-2 py-1 font-mono text-xs text-text-primary outline-none focus:border-accent"
+					class="max-w-[13rem] shrink-0 border border-border bg-bg-muted px-2.5 py-1.5 font-mono text-xs text-text-primary outline-none transition focus:border-accent"
 					value={bucket()}
 					title={fallback() ? 'Key cannot list buckets; showing configured default' : undefined}
 					onChange={(e) => {
@@ -535,19 +535,23 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				>
 					<For each={bucketOptions()}>{(name) => <option value={name}>{name}</option>}</For>
 				</select>
-				<nav class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 gap-y-1 font-mono text-xs">
-					<button type="button" class="text-accent transition hover:text-accent-light" onClick={() => go(bucket(), '')}>
-						/
+
+				<nav class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-1 font-mono text-xs">
+					<button
+						type="button"
+						class="cursor-pointer px-1 text-text-muted transition hover:text-accent"
+						onClick={() => go(bucket(), '')}
+					>
+						root
 					</button>
 					<For each={pathCrumbs(prefix())}>
 						{(c, i) => (
 							<>
-								<Show when={i() > 0}>
-									<span class="text-text-muted">/</span>
-								</Show>
+								<span class="text-border-strong">/</span>
 								<button
 									type="button"
-									class="text-accent transition hover:text-accent-light"
+									class="cursor-pointer px-1 text-accent transition hover:text-accent-light"
+									classList={{ 'text-text-primary': i() === pathCrumbs(prefix()).length - 1 }}
 									onClick={() => go(bucket(), c.prefix)}
 								>
 									{c.label}
@@ -556,13 +560,16 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 						)}
 					</For>
 					<Show when={loading()}>
-						<span class="text-text-muted">…</span>
+						<span class="ml-2 text-text-muted">loading…</span>
 					</Show>
 				</nav>
+
+				<span class="eyebrow shrink-0">{rows().filter((r) => r.kind !== 'parent').length} items</span>
 			</div>
 
-			<div class="flex flex-wrap items-center gap-2 border-b border-border px-3 py-2">
-				<button type="button" class={btn} disabled={!!busy()} onClick={() => fileInput?.click()}>
+			{/* Actions */}
+			<div class="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2.5">
+				<button type="button" class={`${btn} btn-primary`} disabled={!!busy()} onClick={() => fileInput?.click()}>
 					Upload
 				</button>
 				<button type="button" class={btn} disabled={!!busy()} onClick={() => folderInput?.click()}>
@@ -571,6 +578,9 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				<button type="button" class={btn} disabled={!!busy()} onClick={() => void onMkdir()}>
 					New folder
 				</button>
+
+				<span class="mx-1 h-5 w-px bg-border" />
+
 				<button type="button" class={btn} disabled={!canAct()} onClick={downloadCurrent}>
 					Download
 				</button>
@@ -580,14 +590,14 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				<button type="button" class={btn} disabled={!canAct()} onClick={() => void onMove()}>
 					Move
 				</button>
-				<button
-					type="button"
-					class={`${btn} border-error/40 text-error hover:border-error hover:text-error`}
-					disabled={!canAct()}
-					onClick={() => void onDelete()}
-				>
+				<button type="button" class={`${btn} btn-danger`} disabled={!canAct()} onClick={() => void onDelete()}>
 					Delete
 				</button>
+
+				<Show when={selected().length > 0}>
+					<span class="eyebrow eyebrow-accent ml-auto">{selected().length} selected</span>
+				</Show>
+
 				<input
 					ref={fileInput}
 					type="file"
@@ -614,10 +624,10 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 			</div>
 
 			<Show when={error()}>
-				<p class="border-b border-error/30 bg-error/5 px-3 py-2 font-mono text-xs text-error">{error()}</p>
+				<p class="note note-bad rounded-none border-b border-border px-4 py-2.5 text-sm">{error()}</p>
 			</Show>
 			<Show when={busy()}>
-				<p class="border-b border-accent/30 bg-accent/5 px-3 py-2 font-mono text-xs text-accent">{busy()}</p>
+				<p class="note note-busy rounded-none border-b border-border px-4 py-2.5 text-sm">{busy()}</p>
 			</Show>
 
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: native file drop target */}
@@ -638,40 +648,44 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				onDrop={(e) => void onDrop(e)}
 			>
 				<div class="min-w-0 flex-1 overflow-auto" ref={listEl} onScroll={onListScroll}>
-					<div class="sticky top-0 z-10 grid grid-cols-[2rem_minmax(0,1fr)_6rem_10rem] gap-2 border-b border-border bg-bg-muted px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-text-muted">
-						<label class="flex items-center justify-center">
+					<div class="sticky top-0 z-10 grid grid-cols-[2.25rem_minmax(0,1fr)_6rem_10rem] items-center gap-2 border-b border-border bg-bg-muted px-4 py-2">
+						<label class="flex cursor-pointer items-center justify-center">
 							<input
 								type="checkbox"
+								class="cursor-pointer"
 								checked={selectableIds().length > 0 && selected().length === selectableIds().length}
 								onChange={(e) => setSelected(e.currentTarget.checked ? selectableIds() : [])}
 							/>
 						</label>
-						<span>Name</span>
-						<span class="text-right">Size</span>
-						<span class="text-right">Modified</span>
+						<span class="eyebrow">Name</span>
+						<span class="eyebrow text-right">Size</span>
+						<span class="eyebrow text-right">Modified</span>
 					</div>
+
 					<Show when={loading()}>
-						<p class="px-3 py-6 font-mono text-xs text-text-muted">{'// listing…'}</p>
+						<p class="px-4 py-10 text-center text-text-muted">Listing objects…</p>
 					</Show>
 					<Show when={!loading() && rows().length === 0}>
-						<p class="px-3 py-6 font-mono text-xs text-text-muted">{'// empty'}</p>
+						<p class="px-4 py-10 text-center text-text-muted">This folder is empty. Drop files here to upload.</p>
 					</Show>
+
 					<ul>
 						<For each={rows()}>
 							{(row) => {
 								const active = () => row.kind !== 'parent' && selected().includes(row.id);
 								return (
 									<li
-										class="grid grid-cols-[2rem_minmax(0,1fr)_6rem_10rem] items-center gap-2 border-b border-border px-3 py-2 transition hover:bg-bg-surface/70"
+										class="grid grid-cols-[2.25rem_minmax(0,1fr)_6rem_10rem] items-center gap-2 border-b border-border px-4 py-2 transition hover:bg-bg-surface"
 										classList={{
 											'bg-accent/10': active(),
-											'shadow-[inset_2px_0_0_0_#d4a857]': active(),
+											'shadow-[inset_2px_0_0_0_#2547cc]': active(),
 										}}
 									>
 										<span class="flex justify-center">
 											<Show when={row.kind !== 'parent'}>
 												<input
 													type="checkbox"
+													class="cursor-pointer"
 													checked={active()}
 													onChange={(e) => {
 														const on = e.currentTarget.checked;
@@ -701,8 +715,34 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 												if (row.kind === 'object') void downloadSelection([row.id], []);
 											}}
 										>
-											<span class="flex min-w-0 items-center gap-2 font-mono text-sm">
-												<span class="shrink-0 text-text-muted">{row.kind === 'object' ? '·' : '/'}</span>
+											<span class="flex min-w-0 items-center gap-2.5 font-mono text-sm">
+												<Show
+													when={row.kind === 'object'}
+													fallback={
+														<svg
+															class="h-4 w-4 shrink-0 text-accent"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="1.75"
+															aria-hidden="true"
+														>
+															<path d="M3 7a1 1 0 0 1 1-1h5l2 2h8a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+														</svg>
+													}
+												>
+													<svg
+														class="h-4 w-4 shrink-0 text-text-muted"
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														stroke-width="1.75"
+														aria-hidden="true"
+													>
+														<path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z" />
+														<path d="M14 3v4h4" />
+													</svg>
+												</Show>
 												<span
 													class="truncate"
 													classList={{
@@ -713,10 +753,10 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 													{row.name}
 												</span>
 											</span>
-											<span class="text-right font-mono text-[11px] text-text-muted">
+											<span class="text-right font-mono text-[11px] tabular-nums text-text-muted">
 												{row.kind === 'object' ? formatBytes(row.size ?? 0) : '—'}
 											</span>
-											<span class="text-right font-mono text-[11px] text-text-muted">
+											<span class="text-right font-mono text-[11px] tabular-nums text-text-muted">
 												{row.lastModified ? formatDate(row.lastModified) : '—'}
 											</span>
 										</button>
@@ -725,80 +765,86 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 							}}
 						</For>
 					</ul>
+
 					<Show when={loadingMore()}>
-						<p class="px-3 py-3 font-mono text-xs text-text-muted">{'// more…'}</p>
+						<p class="px-4 py-4 text-center text-sm text-text-muted">Loading more…</p>
 					</Show>
 				</div>
 
-				<aside class="hidden w-80 shrink-0 overflow-auto border-l border-border bg-bg-base md:block">
-					<div class="border-b border-border px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-text-muted">
-						preview
+				{/* Preview */}
+				<aside class="hidden w-80 shrink-0 overflow-auto border-l border-border bg-bg-base lg:block">
+					<div class="border-b border-border px-4 py-2">
+						<span class="eyebrow">Preview</span>
 					</div>
-					<div class="space-y-3 px-3 py-3">
+					<div class="space-y-4 px-4 py-4">
 						<Show when={selected().length === 0}>
-							<p class="font-mono text-xs text-text-muted">Check a file to preview. Click a folder to open it.</p>
+							<p class="text-sm leading-relaxed text-text-muted">Check a file to preview it. Click a folder to open it.</p>
 						</Show>
+
 						<Show when={selected().length > 1}>
-							<p class="font-mono text-sm text-text-secondary">{selected().length} selected</p>
-							<p class="font-mono text-[11px] text-text-muted">Download, move, or delete from the toolbar.</p>
+							<p class="u-wide text-base text-text-primary">{selected().length} selected</p>
+							<p class="text-sm text-text-muted">Download, move, or delete from the toolbar.</p>
 						</Show>
+
 						<Show when={folderSel()}>
 							{(folder) => (
 								<>
-									<p class="font-mono text-sm text-accent">/{basename(folder().id)}</p>
-									<p class="font-mono text-[11px] text-text-muted">Folder prefix</p>
+									<p class="break-all font-mono text-sm text-accent">{basename(folder().id)}/</p>
+									<span class="eyebrow">Folder prefix</span>
 								</>
 							)}
 						</Show>
+
 						<Show when={fileSel()}>
 							{(file) => (
 								<>
 									<p class="break-all font-mono text-sm text-text-primary">{file().id}</p>
-									<dl class="space-y-1 font-mono text-[11px] text-text-muted">
+
+									<dl class="space-y-2 border-y border-border py-3 font-mono text-[11px]">
 										<div class="flex justify-between gap-3">
-											<dt>size</dt>
-											<dd class="text-text-secondary">{formatBytes(file().obj?.size ?? 0)}</dd>
+											<dt class="text-text-muted">Size</dt>
+											<dd class="tabular-nums text-text-secondary">{formatBytes(file().obj?.size ?? 0)}</dd>
 										</div>
 										<div class="flex justify-between gap-3">
-											<dt>modified</dt>
-											<dd class="text-text-secondary">
+											<dt class="text-text-muted">Modified</dt>
+											<dd class="tabular-nums text-text-secondary">
 												{file().obj?.lastModified ? formatDate(file().obj?.lastModified ?? '') : '—'}
 											</dd>
 										</div>
 									</dl>
+
 									<Show when={editorHref()}>
 										{(href) => (
-											<a
-												href={href()}
-												class="inline-block font-mono text-[11px] text-accent underline underline-offset-4"
-											>
-												open in editor →
+											<a href={href()} class="link inline-block font-mono text-xs">
+												Open in editor &rarr;
 											</a>
 										)}
 									</Show>
+
 									<Show when={isImageKey(file().id)}>
 										<img
 											src={fsApi.objectUrl(bucket(), file().id)}
 											alt={basename(file().id)}
-											class="mt-2 max-h-64 w-full bg-bg-muted object-contain"
+											class="max-h-64 w-full border border-border bg-bg-muted object-contain"
 										/>
 									</Show>
+
 									<Show when={isTextKey(file().id)}>
 										<Show when={textPreview.loading}>
-											<p class="font-mono text-[11px] text-text-muted">{'// reading…'}</p>
+											<p class="text-sm text-text-muted">Reading…</p>
 										</Show>
 										<Show when={textPreview.error}>
-											<p class="font-mono text-[11px] text-error">Could not load preview.</p>
+											<p class="text-sm text-error">Could not load preview.</p>
 										</Show>
 										<Show when={textPreview()?.binary}>
-											<p class="font-mono text-[11px] text-text-muted">Binary file — no text preview.</p>
+											<p class="text-sm text-text-muted">Binary file — no text preview.</p>
 										</Show>
 										<Show when={textPreview() && !textPreview()?.binary}>
-											<pre class="max-h-80 overflow-auto whitespace-pre-wrap break-all border border-border bg-bg-muted p-2 font-mono text-[11px] leading-relaxed text-text-secondary">
+											<pre class="max-h-80 overflow-auto whitespace-pre-wrap break-all border border-border bg-bg-muted p-3 font-mono text-[11px] leading-relaxed text-text-secondary">
 												{textPreview()?.text}
 											</pre>
 											<Show when={textPreview()?.truncated}>
-												<p class="font-mono text-[10px] text-text-muted">{'// truncated to 256 KB'}</p>
+												<p class="text-[11px] text-text-muted">Truncated to 256 KB.</p>
 											</Show>
 										</Show>
 									</Show>
@@ -809,18 +855,22 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				</aside>
 
 				<Show when={dragOver()}>
-					<div class="pointer-events-none absolute inset-0 flex items-center justify-center border-2 border-dashed border-accent bg-bg-base/80">
-						<p class="font-display text-2xl font-bold text-accent">Drop to upload</p>
+					<div class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center border-2 border-dashed border-accent bg-bg-base/90">
+						<div class="text-center">
+							<p class="u-wide text-lg text-accent">Drop to upload</p>
+							<p class="mt-2 font-mono text-xs text-text-muted">{prefix() ? `into ${prefix()}` : 'into the bucket root'}</p>
+						</div>
 					</div>
 				</Show>
 			</div>
 
+			{/* Uploads */}
 			<Show when={uploads().length > 0}>
-				<div class="max-h-36 overflow-auto border-t border-border bg-bg-base px-3 py-2">
-					<div class="mb-2 flex items-center justify-between">
-						<p class="font-mono text-[10px] uppercase tracking-widest text-text-muted">
-							uploads {uploads().filter((u) => u.status === 'done').length}/{uploads().length}
-						</p>
+				<div class="max-h-40 overflow-auto border-t border-border bg-bg-base px-4 py-3">
+					<div class="mb-2.5 flex items-center justify-between gap-3">
+						<span class="eyebrow">
+							Uploads {uploads().filter((u) => u.status === 'done').length}/{uploads().length}
+						</span>
 						<div class="flex gap-2">
 							<Show when={uploads().some((u) => u.status === 'error')}>
 								<button type="button" class={btn} onClick={() => void retryFailed()}>
@@ -836,13 +886,14 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 							</button>
 						</div>
 					</div>
-					<ul class="space-y-1">
+					<ul class="space-y-2">
 						<For each={uploads()}>
 							{(u) => (
 								<li class="font-mono text-[11px]">
 									<div class="flex items-center justify-between gap-3">
 										<span class="truncate text-text-secondary">{u.key}</span>
 										<span
+											class="shrink-0 tabular-nums"
 											classList={{
 												'text-success': u.status === 'done',
 												'text-error': u.status === 'error',
@@ -853,11 +904,14 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 											{u.status === 'uploading' ? `${Math.round(u.progress * 100)}%` : u.status}
 										</span>
 									</div>
-									<div class="mt-0.5 h-0.5 bg-bg-subtle">
-										<div class="h-full bg-accent" style={{ width: `${Math.round(u.progress * 100)}%` }} />
+									<div class="mt-1 h-0.5 bg-bg-subtle">
+										<div
+											class="h-full bg-accent transition-all"
+											style={{ width: `${Math.round(u.progress * 100)}%` }}
+										/>
 									</div>
 									<Show when={u.error}>
-										<p class="text-error">{u.error}</p>
+										<p class="mt-1 text-error">{u.error}</p>
 									</Show>
 								</li>
 							)}
@@ -866,12 +920,13 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 				</div>
 			</Show>
 
+			{/* Prompt */}
 			<Show when={prompt()}>
 				{(p) => (
 					<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
 						<button
 							type="button"
-							class="absolute inset-0 bg-bg-base/80"
+							class="absolute inset-0 bg-text-primary/35 backdrop-blur-[2px]"
 							aria-label="Close dialog"
 							onClick={() => {
 								p().resolve(null);
@@ -879,25 +934,19 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 							}}
 						/>
 						<form
-							class="relative z-10 w-full max-w-md border border-border-strong bg-bg-surface p-5 shadow-[4px_4px_0_0_#d4a85733]"
+							class="relative z-10 w-full max-w-md border border-border-strong bg-bg-base p-6 rounded-lg shadow-[0_18px_50px_-12px_rgba(21,24,31,0.28)]"
 							onSubmit={(e) => {
 								e.preventDefault();
 								p().resolve(promptInput?.value.trim() ?? '');
 								setPrompt(null);
 							}}
 						>
-							<h2 class="font-display text-xl font-bold tracking-tight">{p().title}</h2>
-							<label class="mt-4 block text-sm text-text-secondary">
-								<span class="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-text-muted">
-									{p().label}
-								</span>
-								<input
-									ref={promptInput}
-									value={p().value}
-									class="w-full border border-border bg-bg-base px-3 py-2 font-mono text-sm text-text-primary outline-none focus:border-accent"
-								/>
-							</label>
-							<div class="mt-5 flex justify-end gap-3">
+							<h2 class="u-wide text-lg text-text-primary">{p().title}</h2>
+							<div class="mt-5">
+								<span class="label">{p().label}</span>
+								<input ref={promptInput} value={p().value} class="field" />
+							</div>
+							<div class="mt-6 flex justify-end gap-3">
 								<button
 									type="button"
 									class={btn}
@@ -908,11 +957,8 @@ export default function FileBrowser(props: { defaultBucket: string }) {
 								>
 									Cancel
 								</button>
-								<button
-									type="submit"
-									class="cursor-pointer bg-accent px-4 py-1.5 font-display text-sm font-bold text-bg-base hover:bg-accent-light"
-								>
-									OK
+								<button type="submit" class={`${btn} btn-primary`}>
+									Confirm
 								</button>
 							</div>
 						</form>

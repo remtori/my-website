@@ -8,41 +8,33 @@ const retrySec = Astro.url.searchParams.get('retry');
 ---
 
 <Layout title="Admin login" wide={true}>
-	<div class="animate-fade-in-up flex min-h-[65vh] items-center justify-center">
-		<div class="w-full max-w-sm border border-border bg-bg-surface p-8">
-			<div class="space-y-2 text-center">
-				<h1 class="font-display text-2xl font-bold text-text-primary">Admin</h1>
-				<p class="text-sm text-text-muted">Sign in with the site password.</p>
-			</div>
-
+	<div class="flex min-h-[62vh] items-center justify-center">
+		<div class="rise w-full max-w-sm">
+			<p class="eyebrow eyebrow-accent">Admin</p>
+			<h1 class="u-wide mt-2 text-2xl text-text-primary">Sign in</h1>
+			
 			{err === 'rate' ? (
-				<p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm text-error">
+				<p class="note note-bad mt-8">
 					Too many sign-in attempts.
-					{retrySec ? (
-						<span class="mt-1 block font-mono text-xs text-text-muted">Try again in about {retrySec}s.</span>
-					) : null}
+					{retrySec ? <span class="mt-1 block font-mono text-xs">Try again in about {retrySec}s.</span> : null}
 				</p>
 			) : err ? (
-				<p class="mt-4 border border-error/30 bg-error/5 px-3 py-2 text-center text-sm font-mono text-error">Invalid password.</p>
+				<p class="note note-bad mt-8">Invalid password.</p>
 			) : null}
 
-			<form method="POST" action="/api/admin/login" class="mt-6 space-y-5">
-				<label class="block text-sm text-text-secondary">
-					<span class="mb-1.5 block font-medium">Password</span>
+			<form method="POST" action="/api/admin/login" class="mt-8 space-y-5">
+				<div>
+					<label class="label" for="admin-password">Password</label>
 					<input
+						id="admin-password"
 						type="password"
 						name="password"
 						required
 						autocomplete="current-password"
-						class="w-full border border-border bg-bg-base px-4 py-3 font-mono text-text-primary outline-none transition focus:border-accent"
+						class="field"
 					/>
-				</label>
-				<button
-					type="submit"
-					class="w-full bg-accent px-4 py-3 font-display font-bold text-bg-base transition hover:bg-accent-light"
-				>
-					Sign in
-				</button>
+				</div>
+				<button type="submit" class="btn btn-primary w-full py-3">Sign in</button>
 			</form>
 		</div>
 	</div>

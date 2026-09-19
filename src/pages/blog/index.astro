@@ -24,15 +24,19 @@ items.sort((a, b) => b.date.localeCompare(a.date));
 <Layout title="Blog">
 	<PageHeader title="Blog" subtitle="Thoughts, notes, and write-ups." size="lg" />
 
-	<div class="animate-fade-in-up animate-delay-100 mt-10 space-y-6">
-		<SearchBar id="blog-search" placeholder="filter posts..." />
+	<div class="rise mt-12" style="--i: 1">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<span class="eyebrow">{items.length} {items.length === 1 ? 'post' : 'posts'}</span>
+			<div class="w-full sm:w-72"><SearchBar id="blog-search" placeholder="Filter posts" /></div>
+		</div>
 
-		<ul id="blog-list" class="space-y-0">
+		<ul class="mt-6 border-t border-border">
 			{
 				items.length === 0 ? (
-					<li class="border-2 border-border bg-bg-surface p-6 shadow-[3px_3px_0px_#1c2130]">
-						<p class="text-sm text-text-secondary">
-							No posts yet. Add <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">.mdx</code> files under <code class="bg-bg-subtle px-1.5 py-0.5 font-mono text-sm text-accent">mdx/blogs/</code> in S3, then open a post URL.
+					<li class="py-10">
+						<p class="text-lg text-text-secondary">No posts yet.</p>
+						<p class="mt-2 font-mono text-xs leading-relaxed text-text-muted">
+							Add .mdx files under mdx/blogs/ in S3, then open a post URL.
 						</p>
 					</li>
 				) : (
@@ -46,30 +50,37 @@ items.sort((a, b) => b.date.localeCompare(a.date));
 					))
 				)
 			}
-			<li id="blog-empty" class="hidden border-l-2 border-border py-5 pl-4">
-				<p class="font-mono text-xs text-text-muted">// no posts matched your query</p>
+			<li id="blog-empty" class="hidden py-10">
+				<p class="text-lg text-text-secondary">No posts matched that filter.</p>
 			</li>
 		</ul>
 	</div>
 
 	<script is:inline>
 		(function () {
-			const input = document.getElementById('blog-search');
-			const rows = document.querySelectorAll('.blog-row');
-			const empty = document.getElementById('blog-empty');
-			if (!input || !empty) return;
+			function initBlogSearch() {
+				const input = document.getElementById('blog-search');
+				const rows = document.querySelectorAll('.blog-row');
+				const empty = document.getElementById('blog-empty');
+				if (!input || !empty) return;
+				if (input.dataset.blogSearchReady === 'true') return;
+				input.dataset.blogSearchReady = 'true';
 
-			input.addEventListener('input', function () {
-				const q = this.value.toLowerCase().trim();
-				let visible = 0;
-				rows.forEach(function (row) {
-					const title = (row.getAttribute('data-title') || '').toLowerCase();
-					const match = title.includes(q);
-					row.style.display = match ? '' : 'none';
-					if (match) visible++;
+				input.addEventListener('input', function () {
+					const q = this.value.toLowerCase().trim();
+					let visible = 0;
+					rows.forEach(function (row) {
+						const title = (row.getAttribute('data-title') || '').toLowerCase();
+						const match = title.includes(q);
+						row.style.display = match ? '' : 'none';
+						if (match) visible++;
+					});
+					empty.style.display = visible === 0 ? 'block' : 'none';
 				});
-				empty.style.display = visible === 0 ? '' : 'none';
-			});
+			}
+
+			document.addEventListener('astro:page-load', initBlogSearch);
+			initBlogSearch();
 		})();
 	</script>
 </Layout>

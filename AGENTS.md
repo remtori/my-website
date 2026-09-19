@@ -4,7 +4,12 @@
 
 - Astro 6 + `@astrojs/cloudflare` adapter, **server-rendered** (`output: 'server'`).
 - Runs on **Cloudflare Workers**, not Node. Do not use Node built-ins.
-- Tailwind CSS v4 via Vite plugin. `src/styles/global.css` only contains `@import "tailwindcss";`.
+- Tailwind CSS v4 via Vite plugin. `src/styles/global.css` holds the design system: `@theme` tokens (colors, fonts),
+  base styles, and a `@layer components` block with the shared classes (`.u-wide`, `.u-title`, `.eyebrow`, `.obj`,
+  `.tag`, `.panel`, `.btn`, `.field`, `.label`, `.note`, `.link`, `.navlink`, `.rule`, `.prose-body`).
+- Type: Archivo Variable (display, uses the **width** axis), Newsreader Variable (body serif), JetBrains Mono (data).
+- Listings use one primitive: `src/components/ObjectRow.astro` (`.obj` + a `--sigil` hue per kind of object).
+  `src/scripts/image-tool.ts` and `FileBrowser.tsx` inject markup that relies on these token/class names — grep before renaming.
 - Package manager: **pnpm** (10.33.0). Node: 22.12.0.
 
 ## Commands
